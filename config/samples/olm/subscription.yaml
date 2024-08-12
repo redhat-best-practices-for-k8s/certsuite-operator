@@ -6,5 +6,5 @@ metadata:
 spec:
   sourceNamespace: certsuite-operator
   channel: alpha
-  name: redhat-best-practices-for-k8s-certsuite-operator
+  name: rh-best-practices-for-k8s-certsuite-operator
   source: certsuite-operator-olm-catalog

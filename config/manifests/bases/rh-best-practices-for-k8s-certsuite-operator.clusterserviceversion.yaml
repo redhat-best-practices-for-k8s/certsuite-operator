@@ -5,7 +5,7 @@ metadata:
     alm-examples: '[]'
     capabilities: Basic Install
     console.openshift.io/plugins: '["certsuite-plugin"]'
-  name: redhat-best-practices-for-k8s-certsuite-operator.v0.0.0
+  name: rh-best-practices-for-k8s-certsuite-operator.v0.0.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
