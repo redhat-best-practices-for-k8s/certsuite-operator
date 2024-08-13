@@ -88,8 +88,8 @@ git clone https://github.com/redhat-best-practices-for-k8s/certsuite-operator.gi
     $ oc get pods -n $OLM_INSTALL_NAMESPACE
     NAME                                                              READY   STATUS      RESTARTS   AGE
     afa1738b451274ef681c19ae8e8a6dcc50f65568056ef97355a4a2fe14hbhpn   0/1     Completed   0          3m32s
-    cnf-certsuite-controller-manager-67f68cd4cb-625ww                 2/2     Running     0          3m18s
-    certsuite-operator-olm-catalog-mkmqw                          1/1     Running     0          3m45s
+    certsuite-controller-manager-67f68cd4cb-625ww                     2/2     Running     0          3m18s
+    certsuite-operator-olm-catalog-mkmqw                              1/1     Running     0          3m45s
     ```
     <!-- markdownlint-enable -->
 
@@ -123,7 +123,7 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/downlo
 3. Build and upload the side car image to your registry account:
 
     ```sh
-    docker build -f cnf-cert-sidecar/Dockerfile -t $SIDECAR_IMG .
+    docker build -f certsuite-sidecar/Dockerfile -t $SIDECAR_IMG .
     docker push $SIDECAR_IMG
     ```
 
@@ -147,8 +147,8 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/downlo
     scripts of next steps will use default images:
 
     ```sh
-    IMG=ci-cnf-op:v0.0.1-test
-    SIDECAR_IMG=ci-cnf-op-sidecar:v0.0.1-test
+    IMG=ci-certsuite-op:v0.0.1-test
+    SIDECAR_IMG=ci-certsuite-op-sidecar:v0.0.1-test
     ```
 
 2. Build controller and side car images:
@@ -234,14 +234,14 @@ It can be modified by changing manually the `labelsFilter` of the [sample CR](ht
 
 If all of the resources were applied successfully, the cnf certification suites
 will run on a new created `pod` in the `certsuite-operator` namespace.
-The pod has the name with the form `cnf-job-run-N`:
+The pod has the name with the form `certsuite-job-run-N`:
 
 <!-- markdownlint-disable -->
 ```sh
 $ oc get pods -n certsuite-operator 
 NAME                                                READY   STATUS      RESTARTS   AGE
-cnf-certsuite-controller-manager-6c6bb6d965-jslmd   2/2     Running     0          21h
-cnf-job-run-1                                       0/2     Completed   0          21h
+certsuite-controller-manager-6c6bb6d965-jslmd   2/2     Running     0          21h
+certsuite-job-run-1                                 0/2     Completed   0          21h
 ```
 <!-- markdownlint-enable -->
 

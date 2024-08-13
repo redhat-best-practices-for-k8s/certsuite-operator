@@ -32,7 +32,7 @@ ENV PATH=${PATH}:"/usr/local/go/bin":${GOPATH}/"bin"
 # Build app and copy into a empty ubi-minimal image.
 WORKDIR /
 COPY . .
-RUN ls -la && go build -o app cnf-cert-sidecar/app/main.go
+RUN ls -la && go build -o app certsuite-sidecar/app/main.go
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.9-1029
 WORKDIR /

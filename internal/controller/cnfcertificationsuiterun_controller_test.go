@@ -59,12 +59,12 @@ func Test_getCertSuiteContainerExitStatus(t *testing.T) {
 		wantError      error
 	}{
 		{ // Test case #1 - Pass with returned exit status 0
-			name: "Container cnf-certsuite has 0 exit code",
+			name: "Container certsuite has 0 exit code",
 			certSuitePod: &corev1.Pod{
 				Status: corev1.PodStatus{
 					ContainerStatuses: []corev1.ContainerStatus{
 						{
-							Name: "cnf-certsuite",
+							Name: "certsuite",
 							State: corev1.ContainerState{
 								Terminated: &corev1.ContainerStateTerminated{
 									ExitCode: 0,
@@ -78,12 +78,12 @@ func Test_getCertSuiteContainerExitStatus(t *testing.T) {
 			wantError:      nil,
 		},
 		{ // Test case #2 - Pass with returned exit status -1
-			name: "Container cnf-certsuite has 0 exit code",
+			name: "Container certsuite has 0 exit code",
 			certSuitePod: &corev1.Pod{
 				Status: corev1.PodStatus{
 					ContainerStatuses: []corev1.ContainerStatus{
 						{
-							Name: "cnf-certsuite",
+							Name: "certsuite",
 							State: corev1.ContainerState{
 								Terminated: &corev1.ContainerStateTerminated{
 									ExitCode: -1,
@@ -97,16 +97,16 @@ func Test_getCertSuiteContainerExitStatus(t *testing.T) {
 			wantError:      nil,
 		},
 		{ // Test case #3 - Fail with "container not found" error
-			name: "Container cnf-certsuite wasn't find in pod",
+			name: "Container certsuite wasn't found in pod",
 			certSuitePod: &corev1.Pod{
 				ObjectMeta: v1.ObjectMeta{
-					Name:      "cnf-job-sample",
+					Name:      "certsuite-job-sample",
 					Namespace: "certsuite-operator",
 				},
 				Status: corev1.PodStatus{},
 			},
 			wantExitStatus: 0,
-			wantError:      fmt.Errorf("failed to get cert suite exit status: container not found in pod cnf-job-sample (ns certsuite-operator)"),
+			wantError:      fmt.Errorf("failed to get cert suite exit status: container not found in pod certsuite-job-sample (ns certsuite-operator)"),
 		},
 	}
 	for _, tc := range tests {
@@ -138,12 +138,12 @@ func TestCnfCertificationSuiteRunReconciler_waitForCertSuitePodToComplete(t *tes
 			timeOut:            10 * time.Second,
 			phase:              corev1.PodRunning,
 			wantExitStatusCode: 0,
-			wantError:          fmt.Errorf("timeout (10s) reached while waiting for cert suite pod certsuite-operator/cnf-job-sample to finish"),
+			wantError:          fmt.Errorf("timeout (10s) reached while waiting for cert suite pod certsuite-operator/certsuite-job-sample to finish"),
 		},
 	}
 
 	certSuitePodNamespacedName := types.NamespacedName{
-		Name:      "cnf-job-sample",
+		Name:      "certsuite-job-sample",
 		Namespace: "certsuite-operator",
 	}
 	for _, tc := range tests {

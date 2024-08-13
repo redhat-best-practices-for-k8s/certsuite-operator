@@ -31,7 +31,7 @@ make build
 make test
 
 # step: Build sidecar app
-docker build --no-cache -t "${SIDECAR_IMG}" -f cnf-cert-sidecar/Dockerfile .
+docker build --no-cache -t "${SIDECAR_IMG}" -f certsuite-sidecar/Dockerfile .
 
 # Local install kustomize app that is needed to edit/patch the kustomization.yaml
 make kustomize

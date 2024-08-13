@@ -67,7 +67,7 @@ func newInitialJobPod() *corev1.Pod {
 					ImagePullPolicy: "IfNotPresent",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      "cnf-certsuite-output",
+							Name:      "certsuite-output",
 							ReadOnly:  true,
 							MountPath: definitions.CnfCertSuiteResultsFolder,
 						},
@@ -85,11 +85,11 @@ func newInitialJobPod() *corev1.Pod {
 					ImagePullPolicy: "Always",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      "cnf-certsuite-output",
+							Name:      "certsuite-output",
 							MountPath: definitions.CnfCertSuiteResultsFolder,
 						},
 						{
-							Name:      "cnf-certsuite-config",
+							Name:      "certsuite-config",
 							ReadOnly:  true,
 							MountPath: definitions.CnfCnfCertSuiteConfigFolder,
 						},
@@ -98,7 +98,7 @@ func newInitialJobPod() *corev1.Pod {
 			},
 			Volumes: []corev1.Volume{
 				{
-					Name: "cnf-certsuite-output",
+					Name: "certsuite-output",
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
@@ -171,7 +171,7 @@ func WithTimeOut(timeout string) func(*corev1.Pod) error {
 func WithConfigMap(configMapName string) func(*corev1.Pod) error {
 	return func(p *corev1.Pod) error {
 		Volume := corev1.Volume{
-			Name: "cnf-certsuite-config",
+			Name: "certsuite-config",
 			VolumeSource: corev1.VolumeSource{
 				ConfigMap: &corev1.ConfigMapVolumeSource{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -192,7 +192,7 @@ func WithPreflightSecret(preflightSecretName *string) func(*corev1.Pod) error {
 		}
 
 		Volume := corev1.Volume{
-			Name: "cnf-certsuite-preflight-dockerconfig",
+			Name: "certsuite-preflight-dockerconfig",
 			VolumeSource: corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
 					SecretName: *preflightSecretName,
@@ -203,7 +203,7 @@ func WithPreflightSecret(preflightSecretName *string) func(*corev1.Pod) error {
 
 		cnfCertCuiteContainer := getCnfCertSuiteContainer(p)
 		volumeMount := corev1.VolumeMount{
-			Name:      "cnf-certsuite-preflight-dockerconfig",
+			Name:      "certsuite-preflight-dockerconfig",
 			ReadOnly:  true,
 			MountPath: definitions.CnfPreflightConfigFolder,
 		}
