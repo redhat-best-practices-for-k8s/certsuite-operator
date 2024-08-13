@@ -6,17 +6,17 @@
 # uploading the images to an external registry (quay/docker).
 #
 # The operator is deployed in the namespace set by env var CNF_CERTSUITE_OPERATOR_NAMESPACE
-# or in the defaulted namespace "cnf-certsuite-operator" if that env var is not found.
+# or in the defaulted namespace "certsuite-operator" if that env var is not found.
 #
 
 # Bash settings: display (expanded) commands and fast exit on first error.
 set -o xtrace
 set -o errexit
 
-DEFAULT_CNF_CERTSUITE_OPERATOR_NAMESPACE="cnf-certsuite-operator"
+DEFAULT_CNF_CERTSUITE_OPERATOR_NAMESPACE="certsuite-operator"
 DEFAULT_TEST_VERSION="0.0.1-test"
-DEFAULT_SIDECAR_IMG="ci-cnf-op-sidecar:v$DEFAULT_TEST_VERSION"
-DEFAULT_IMG="ci-cnf-op:v$DEFAULT_TEST_VERSION"
+DEFAULT_SIDECAR_IMG="ci-certsuite-op-sidecar:v$DEFAULT_TEST_VERSION"
+DEFAULT_IMG="ci-certsuite-op:v$DEFAULT_TEST_VERSION"
 
 CNF_CERTSUITE_OPERATOR_NAMESPACE=${CNF_CERTSUITE_OPERATOR_NAMESPACE:-$DEFAULT_CNF_CERTSUITE_OPERATOR_NAMESPACE}
 
@@ -38,4 +38,4 @@ popd
 make deploy
 
 # step: Wait for the controller's containers to be ready
-oc wait --for=condition=ready pod --all=true -n cnf-certsuite-operator --timeout=2m
+oc wait --for=condition=ready pod --all=true -n certsuite-operator --timeout=2m

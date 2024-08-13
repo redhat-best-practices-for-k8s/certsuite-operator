@@ -15,8 +15,8 @@ on:
 
 env:
   REGISTRY: quay.io
-  REGISTRY_USER: testnetworkfunction
-  REPO_BASE_NAME: cnf-certsuite-operator
+  REGISTRY_USER: redhat-best-practices-for-k8s
+  REPO_BASE_NAME: certsuite-operator
 
   TERM: xterm-color
 
@@ -86,7 +86,7 @@ jobs:
           ref: ${{ github.ref_name }}
 
       - name: Build and push sidecar app image
-        run: docker build --no-cache -t "${SIDECAR_IMG}" -f cnf-cert-sidecar/Dockerfile . && docker push ${SIDECAR_IMG}
+        run: docker build --no-cache -t "${SIDECAR_IMG}" -f certsuite-sidecar/Dockerfile . && docker push ${SIDECAR_IMG}
 
       - name: Build and push controller image
         run: make docker-build docker-push

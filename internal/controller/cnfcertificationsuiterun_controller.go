@@ -67,16 +67,16 @@ const (
 	defaultCnfCertSuiteTimeout = time.Hour
 )
 
-// +kubebuilder:rbac:groups=cnf-certifications.redhat.com,namespace=cnf-certsuite-operator,resources=cnfcertificationsuiteruns,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=cnf-certifications.redhat.com,namespace=cnf-certsuite-operator,resources=cnfcertificationsuiteruns/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=cnf-certifications.redhat.com,namespace=cnf-certsuite-operator,resources=cnfcertificationsuiteruns/finalizers,verbs=update
+// +kubebuilder:rbac:groups=cnf-certifications.redhat.com,namespace=certsuite-operator,resources=cnfcertificationsuiteruns,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=cnf-certifications.redhat.com,namespace=certsuite-operator,resources=cnfcertificationsuiteruns/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=cnf-certifications.redhat.com,namespace=certsuite-operator,resources=cnfcertificationsuiteruns/finalizers,verbs=update
 
-// +kubebuilder:rbac:groups="",namespace=cnf-certsuite-operator,resources=pods,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups="",namespace=cnf-certsuite-operator,resources=secrets;configMaps,verbs=get;list;watch
-// +kubebuilder:rbac:groups="",namespace=cnf-certsuite-operator,resources=namespaces;services;configMaps,verbs=create;delete
+// +kubebuilder:rbac:groups="",namespace=certsuite-operator,resources=pods,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="",namespace=certsuite-operator,resources=secrets;configMaps,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",namespace=certsuite-operator,resources=namespaces;services;configMaps,verbs=create;delete
 
 // +kubebuilder:rbac:groups="console.openshift.io",resources=consoleplugins,verbs=create; delete
-// +kubebuilder:rbac:groups="apps",namespace=cnf-certsuite-operator,resources=deployments,verbs=create;get;list;watch;delete
+// +kubebuilder:rbac:groups="apps",namespace=certsuite-operator,resources=deployments,verbs=create;get;list;watch;delete
 
 func ignoreUpdatePredicate() predicate.Predicate {
 	return predicate.Funcs{

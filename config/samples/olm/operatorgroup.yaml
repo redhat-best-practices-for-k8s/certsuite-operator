@@ -2,7 +2,7 @@ apiVersion: operators.coreos.com/v1alpha2
 kind: OperatorGroup
 metadata:
   name: my-group
-  namespace: cnf-certsuite-operator
+  namespace: certsuite-operator
 spec:
   targetNamespaces:
-    - "cnf-certsuite-operator"
+    - "certsuite-operator"

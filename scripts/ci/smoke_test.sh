@@ -16,7 +16,7 @@
 set -o xtrace
 set -o errexit
 
-DEFAULT_CNF_CERTSUITE_OPERATOR_NAMESPACE="cnf-certsuite-operator"
+DEFAULT_CNF_CERTSUITE_OPERATOR_NAMESPACE="certsuite-operator"
 CNF_CERTSUITE_OPERATOR_NAMESPACE=${CNF_CERTSUITE_OPERATOR_NAMESPACE:-$DEFAULT_CNF_CERTSUITE_OPERATOR_NAMESPACE}
 
 # Checks every $2 secs that .status.phase is $1.
@@ -31,7 +31,7 @@ checkStatusPhase() {
     endtime=$(date -ud "$runtime" +%s)
 
     while [[ $(date -u +%s) -le $endtime ]]; do
-        actual_phase=$(oc get cnfcertificationsuiteruns -n cnf-certsuite-operator cnfcertificationsuiterun-sample -o json | jq -r '.status.phase')
+        actual_phase=$(oc get cnfcertificationsuiteruns -n certsuite-operator cnfcertificationsuiterun-sample -o json | jq -r '.status.phase')
         if [ "$actual_phase" == "$expected_phase" ]; then
             echo "Phase ${expected_phase} found!"
             return 0

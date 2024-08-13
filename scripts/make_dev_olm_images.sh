@@ -49,7 +49,7 @@ export BUNDLE_IMG=${BASE_URL}-bundle
 export CATALOG_IMG=${BASE_URL}-catalog
 
 echo "Building sidecar app's image..."
-docker build --no-cache -t "${SIDECAR_IMG}" -f cnf-cert-sidecar/Dockerfile .
+docker build --no-cache -t "${SIDECAR_IMG}" -f certsuite-sidecar/Dockerfile .
 
 echo "Pushing sidecar app's image..."
 docker push "${SIDECAR_IMG}"

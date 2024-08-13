@@ -6,8 +6,8 @@ metadata:
     app.kubernetes.io/name: clusterrole
     app.kubernetes.io/instance: cnfcertificationsuiterun-viewer-role
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: cnf-certsuite-operator
-    app.kubernetes.io/part-of: cnf-certsuite-operator
+    app.kubernetes.io/created-by: certsuite-operator
+    app.kubernetes.io/part-of: certsuite-operator
     app.kubernetes.io/managed-by: kustomize
   name: cnfcertificationsuiterun-viewer-role
 rules:

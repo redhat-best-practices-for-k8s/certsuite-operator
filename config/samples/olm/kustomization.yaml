@@ -5,4 +5,4 @@ resources:
 - operatorgroup.yaml
 - subscription.yaml
 
-namespace: cnf-certsuite-operator
+namespace: certsuite-operator

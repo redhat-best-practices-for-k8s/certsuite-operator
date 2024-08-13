@@ -9,11 +9,11 @@ const (
 )
 
 const (
-	CnfCertPodNamePrefix             = "cnf-job-run"
-	CnfCertSuiteSidecarContainerName = "cnf-certsuite-sidecar"
-	CnfCertSuiteContainerName        = "cnf-certsuite"
+	CnfCertPodNamePrefix             = "certsuite-job-run"
+	CnfCertSuiteSidecarContainerName = "certsuite-sidecar"
+	CnfCertSuiteContainerName        = "certsuite"
 
-	CnfCertSuiteBaseFolder      = "/cnf-certsuite"
+	CnfCertSuiteBaseFolder      = "/certsuite"
 	CnfCnfCertSuiteConfigFolder = CnfCertSuiteBaseFolder + "/config/suite"
 	CnfPreflightConfigFolder    = CnfCertSuiteBaseFolder + "/config/preflight"
 	CnfCertSuiteResultsFolder   = CnfCertSuiteBaseFolder + "/results"

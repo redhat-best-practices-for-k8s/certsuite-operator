@@ -17,8 +17,8 @@ set -o xtrace
 set -o errexit
 
 DEFAULT_TEST_VERSION="0.0.1-test"
-DEFAULT_SIDECAR_IMG="ci-cnf-op-sidecar:v$DEFAULT_TEST_VERSION"
-DEFAULT_IMG="ci-cnf-op:v$DEFAULT_TEST_VERSION"
+DEFAULT_SIDECAR_IMG="ci-certsuite-op-sidecar:v$DEFAULT_TEST_VERSION"
+DEFAULT_IMG="ci-certsuite-op:v$DEFAULT_TEST_VERSION"
 
 export VERSION="${VERSION:-$DEFAULT_TEST_VERSION}"
 export SIDECAR_IMG="${SIDECAR_IMG:-$DEFAULT_SIDECAR_IMG}"
@@ -31,7 +31,7 @@ make build
 make test
 
 # step: Build sidecar app
-docker build --no-cache -t "${SIDECAR_IMG}" -f cnf-cert-sidecar/Dockerfile .
+docker build --no-cache -t "${SIDECAR_IMG}" -f certsuite-sidecar/Dockerfile .
 
 # Local install kustomize app that is needed to edit/patch the kustomization.yaml
 make kustomize

@@ -7,8 +7,8 @@ import (
 	"time"
 
 	cnfcertificationsv1alpha1 "github.com/redhat-best-practices-for-k8s/certsuite-operator/api/v1alpha1"
-	"github.com/redhat-best-practices-for-k8s/certsuite-operator/cnf-cert-sidecar/app/claim"
-	cnfcertsuitereport "github.com/redhat-best-practices-for-k8s/certsuite-operator/cnf-cert-sidecar/app/cnf-cert-suite-report"
+	"github.com/redhat-best-practices-for-k8s/certsuite-operator/certsuite-sidecar/app/claim"
+	cnfcertsuitereport "github.com/redhat-best-practices-for-k8s/certsuite-operator/certsuite-sidecar/app/cnf-cert-suite-report"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"

@@ -7,11 +7,11 @@ metadata:
   labels:
     app.kubernetes.io/name: cnfcertificationsuiterun
     app.kubernetes.io/instance: cnfcertificationsuiterun-invalid-sample
-    app.kubernetes.io/part-of: cnf-certsuite-operator
+    app.kubernetes.io/part-of: certsuite-operator
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: cnf-certsuite-operator
+    app.kubernetes.io/created-by: certsuite-operator
   name: cnfcertificationsuiterun-sample3
-  namespace: cnf-certsuite-operator
+  namespace: certsuite-operator
 spec:
   # TODO(user): Add fields here
   labelsFilter: "observability"
@@ -19,4 +19,4 @@ spec:
   timeout: "2h"
 
   configMapName: "non-exist-configmap"
-  preflightSecretName : "cnf-certsuite-preflight-dockerconfig"
+  preflightSecretName : "certsuite-preflight-dockerconfig"

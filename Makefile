@@ -29,8 +29,9 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# redhat.com/cnf-certsuite-operator-bundle:$VERSION and redhat.com/tnf-op-catalog:$VERSION.
-IMAGE_TAG_BASE ?= redhat.com/cnf-certsuite-operator
+# quay.io/redhat-best-practices-for-k8s/certsuite-operator-bundle:v$VERSION and
+# quay.io/redhat-best-practices-for-k8s/certsuite-operator-catalog:v$VERSION.
+IMAGE_TAG_BASE ?= quay.io/redhat-best-practices-for-k8s/certsuite-operator
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
@@ -52,8 +53,8 @@ endif
 OPERATOR_SDK_VERSION ?= v1.34.2
 
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
-SIDECAR_IMG ?= sidecar:latest
+IMG ?= quay.io/redhat-best-practices-for-k8s/certsuite-operator:v$(VERSION)
+SIDECAR_IMG ?= quay.io/redhat-best-practices-for-k8s/certsuite-operator-sidecar:v$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.28.3
 
@@ -269,7 +270,7 @@ OPERATOR_SDK = $(shell which operator-sdk)
 endif
 endif
 
-## IMPORTANT: The serviceaccount "cnf-certsuite-cluster-access" is needed by the CNF's cert pod. The prefix "cnf-certsuite" must match the one in
+## IMPORTANT: The serviceaccount "certsuite-cluster-access" is needed by the CNF's cert pod. The prefix "certsuite" must match the one in
 ## config/default/kustomization.yaml field "namePrefix".
 .PHONY: bundle
 bundle: manifests kustomize ## Generate bundle manifests and metadata, then validate generated files.
@@ -277,7 +278,7 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 	cd config/manager \
 	  && $(KUSTOMIZE) edit set image controller=${IMG} \
       && $(KUSTOMIZE) edit add patch --kind Deployment --patch "[{\"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/env/1\", \"value\": {\"name\": \"SIDECAR_APP_IMG\", \"value\": \"${SIDECAR_IMG}\"} }]"
-	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS) --extra-service-accounts cnf-certsuite-cluster-access
+	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS) --extra-service-accounts certsuite-cluster-access
 	$(OPERATOR_SDK) bundle validate ./bundle
 
 .PHONY: bundle-build
@@ -332,15 +333,15 @@ catalog-push: ## Push a catalog image.
 .PHONY: deploy-samples
 deploy-samples: kustomize ## Deploy the sample CR, configmap and secret in the cluster.
 	cd config/samples \
-	  && $(KUSTOMIZE) edit add resource "extra/cnf-certsuite-configmap.yaml" \
-	  && $(KUSTOMIZE) edit add resource "extra/cnf-certsuite-preflight-secret.yaml"
+	  && $(KUSTOMIZE) edit add resource "extra/certsuite-configmap.yaml" \
+	  && $(KUSTOMIZE) edit add resource "extra/certsuite-preflight-secret.yaml"
 	$(KUBECTL) kustomize config/samples | $(KUBECTL) apply -f -
 
 # Install the operator using OLM subscription. It will create the namespace ${OLM_INSTALL_NAMESPACE}, which
-# is defaulted to "cnf-certsuite-operator" if not set, and deploys the CatalogSource, OperatorGroup and
+# is defaulted to "certsuite-operator" if not set, and deploys the CatalogSource, OperatorGroup and
 # and the subscription, using the operator found in the "alpha" channel of the catalog ${OLM_INSTALL_IMG_CATALOG}.
-OLM_INSTALL_IMG_CATALOG ?= quay.io/testnetworkfunction/cnf-certsuite-operator-catalog:latest
-OLM_INSTALL_NAMESPACE ?= cnf-certsuite-operator
+OLM_INSTALL_IMG_CATALOG ?= quay.io/redhat-best-practices-for-k8s/certsuite-operator-catalog:latest
+OLM_INSTALL_NAMESPACE ?= certsuite-operator
 .PHONY: olm-install
 olm-install: kustomize ## Installs the operator using OLM subscription.
 	cd config/samples/olm \

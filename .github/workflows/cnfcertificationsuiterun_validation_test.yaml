@@ -47,21 +47,21 @@ jobs:
           df -h
 
         # Create a Kind cluster for testing.
-      - name: Check out `cnf-certification-test-partner` repo
+      - name: Check out `certsuite-sample-workload` repo
         uses: actions/checkout@v4
         with:
-          repository: test-network-function/cnf-certification-test-partner
-          path: cnf-certification-test-partner
+          repository: redhat-best-practices-for-k8s/certsuite-sample-workload
+          path: certsuite-sample-workload
 
       - name: Bootstrap cluster, docker, and python
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 3
-          command: cd ${GITHUB_WORKSPACE}/cnf-certification-test-partner; make bootstrap-cluster && make bootstrap-docker-ubuntu-local && make bootstrap-python-ubuntu-local
+          command: cd ${GITHUB_WORKSPACE}/certsuite-sample-workload; make bootstrap-cluster && make bootstrap-docker-ubuntu-local && make bootstrap-python-ubuntu-local
 
     # Restart docker using /mnt/docker-storage (sdb) instead of /var/lib/docker (sda).
-    # This step needs to be done right after the partner repo's bootstrap scripts, as they
+    # This step needs to be done right after the sample workload repo's bootstrap scripts, as they
     # overwrite the docker's daemon.json.
       - name: Make docker to use /mnt (sdb) for storage
         run: |
@@ -81,7 +81,7 @@ jobs:
         with:
           timeout_minutes: 15
           max_attempts: 3
-          command: cd ${GITHUB_WORKSPACE}/cnf-certification-test-partner; make rebuild-cluster
+          command: cd ${GITHUB_WORKSPACE}/certsuite-sample-workload; make rebuild-cluster
 
       - name: Run 'make install'
         uses: nick-fields/retry@v3
@@ -90,7 +90,7 @@ jobs:
         with:
           timeout_minutes: 20
           max_attempts: 3
-          command: cd ${GITHUB_WORKSPACE}/cnf-certification-test-partner; make install
+          command: cd ${GITHUB_WORKSPACE}/certsuite-sample-workload; make install
 
       - name: Install cert-manager to cluster
         run: |
@@ -107,7 +107,7 @@ jobs:
           docker rmi $(docker images -f "dangling=true" -q) || true
           docker builder prune --all -f
           go clean -modcache
-          rm -rf ${GITHUB_WORKSPACE}/cnf-certification-test-partner
+          rm -rf ${GITHUB_WORKSPACE}/certsuite-sample-workload
           df -h
 
       - name: Install operator in the Kind cluster

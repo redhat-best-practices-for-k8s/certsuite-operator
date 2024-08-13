@@ -2,23 +2,25 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cnf-certsuite-config
-  namespace: cnf-certsuite-operator
+  name: certsuite-config
+  namespace: certsuite-operator
 data:
   tnf_config.yaml: |
     targetNameSpaces:
       - name: tnf
     podsUnderTestLabels:
-      - "test-network-function.com/generic: target"
+      - "redhat-best-practices-for-k8s.com/generic: target"
     # deprecated operator label ("test-network-function.com/operator:"") still configured by default, no need to add it here
     operatorsUnderTestLabels:
-      - "test-network-function.com/operator1:new"
+      - "redhat-best-practices-for-k8s.com/operator:target"
+      - "redhat-best-practices-for-k8s.com/operator1:new"
+      - "cnf/test:cr-scale-operator"
     targetCrdFilters:
       - nameSuffix: "group1.test.com"
         scalable: false
-      - nameSuffix: "test-network-function.com"
+      - nameSuffix: "redhat-best-practices-for-k8s.com"
         scalable: false
-      - nameSuffix: "tutorial.my.domain"
+      - nameSuffix: "memcacheds.cache.example.com"
         scalable: true
     managedDeployments:
       - name: jack

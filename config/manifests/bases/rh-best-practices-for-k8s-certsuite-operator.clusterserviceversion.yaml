@@ -4,8 +4,8 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    console.openshift.io/plugins: '["cnf-certsuite-plugin"]'
-  name: cnf-certsuite-operator.v0.0.0
+    console.openshift.io/plugins: '["certsuite-plugin"]'
+  name: rh-best-practices-for-k8s-certsuite-operator.v0.0.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -17,9 +17,9 @@ spec:
       kind: CnfCertificationSuiteRun
       name: cnfcertificationsuiteruns.cnf-certifications.redhat.com
       version: v1alpha1
-  description: Deploys the CNF Certification Suite Pod to run the certification suite
-    on target CNF resources.
-  displayName: CNF Certification Suite Operator
+  description: Deploys Red Hat's Best Practices for Kubernetes Certification Suite
+    Pod to run the Certification Test Suite on target resources.
+  displayName: Red Hat's Best Practices for Kubernetes Certification Suite Operator
   icon:
   - base64data: ""
     mediatype: ""
@@ -42,7 +42,7 @@ spec:
   - cloud
   - telco
   links:
-  - name: CNF Certification Suite Operator
+  - name: Red Hat's Best Practices for Kubernetes Certification Suite Operator
     url: https://github.com/redhat-best-practices-for-k8s/certsuite-operator
   maturity: alpha
   provider:

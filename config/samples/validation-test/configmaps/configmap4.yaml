@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cnf-certsuite-invalid-config4
-  namespace: cnf-certsuite-operator
+  name: certsuite-invalid-config4
+  namespace: certsuite-operator
 data:
   

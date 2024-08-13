@@ -7,16 +7,16 @@ metadata:
   labels:
     app.kubernetes.io/name: cnfcertificationsuiterun
     app.kubernetes.io/instance: cnfcertificationsuiterun-sample
-    app.kubernetes.io/part-of: cnf-certsuite-operator
+    app.kubernetes.io/part-of: certsuite-operator
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: cnf-certsuite-operator
+    app.kubernetes.io/created-by: certsuite-operator
   name: cnfcertificationsuiterun-sample6
-  namespace: cnf-certsuite-operator
+  namespace: certsuite-operator
 spec:
   # TODO(user): Add fields here
   labelsFilter: "observability"
   logLevel: "info"
   timeout: "2h"
 
-  configMapName: "cnf-certsuite-config"
+  configMapName: "certsuite-config"
   preflightSecretName : ""

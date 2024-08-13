@@ -1,10 +1,10 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: cnf-certsuite-operator
-  namespace: cnf-certsuite-operator
+  name: certsuite-operator
+  namespace: certsuite-operator
 spec:
-  sourceNamespace: cnf-certsuite-operator
+  sourceNamespace: certsuite-operator
   channel: alpha
-  name: cnf-certsuite-operator
-  source: cnf-certsuite-operator-olm-catalog
+  name: rh-best-practices-for-k8s-certsuite-operator
+  source: certsuite-operator-olm-catalog

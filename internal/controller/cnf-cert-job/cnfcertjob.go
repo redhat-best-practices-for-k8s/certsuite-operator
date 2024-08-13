@@ -13,8 +13,10 @@ import (
 const (
 	// Be careful when changing this SA name.
 	// 1. It must match the flag --extra-service-accounts in "make bundle".
-	// 2. The prefix is "cnf-certsuite-". It should match the field namePrefix field in config/default/kustomization.yaml.
-	clusterAccessServiceAccountName = "cnf-certsuite-cluster-access"
+	// 2. The prefix is "certsuite-". It should match the field namePrefix field in config/default/kustomization.yaml.
+	clusterAccessServiceAccountName = "certsuite-cluster-access"
+
+	certsuiteContainerImage = "quay.io/redhat-best-practices-for-k8s/certsuite:unstable"
 )
 
 func New(options ...func(*corev1.Pod) error) (*corev1.Pod, error) {
@@ -65,7 +67,7 @@ func newInitialJobPod() *corev1.Pod {
 					ImagePullPolicy: "IfNotPresent",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      "cnf-certsuite-output",
+							Name:      "certsuite-output",
 							ReadOnly:  true,
 							MountPath: definitions.CnfCertSuiteResultsFolder,
 						},
@@ -73,7 +75,7 @@ func newInitialJobPod() *corev1.Pod {
 				},
 				{
 					Name:    definitions.CnfCertSuiteContainerName,
-					Image:   "quay.io/testnetworkfunction/cnf-certification-test:unstable",
+					Image:   certsuiteContainerImage,
 					Command: []string{"certsuite"},
 					Args: []string{"run", "--output-dir", definitions.CnfCertSuiteResultsFolder,
 						"--config-file", definitions.CnfCertSuiteConfigFilePath,
@@ -83,11 +85,11 @@ func newInitialJobPod() *corev1.Pod {
 					ImagePullPolicy: "Always",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      "cnf-certsuite-output",
+							Name:      "certsuite-output",
 							MountPath: definitions.CnfCertSuiteResultsFolder,
 						},
 						{
-							Name:      "cnf-certsuite-config",
+							Name:      "certsuite-config",
 							ReadOnly:  true,
 							MountPath: definitions.CnfCnfCertSuiteConfigFolder,
 						},
@@ -96,7 +98,7 @@ func newInitialJobPod() *corev1.Pod {
 			},
 			Volumes: []corev1.Volume{
 				{
-					Name: "cnf-certsuite-output",
+					Name: "certsuite-output",
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
@@ -169,7 +171,7 @@ func WithTimeOut(timeout string) func(*corev1.Pod) error {
 func WithConfigMap(configMapName string) func(*corev1.Pod) error {
 	return func(p *corev1.Pod) error {
 		Volume := corev1.Volume{
-			Name: "cnf-certsuite-config",
+			Name: "certsuite-config",
 			VolumeSource: corev1.VolumeSource{
 				ConfigMap: &corev1.ConfigMapVolumeSource{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -190,7 +192,7 @@ func WithPreflightSecret(preflightSecretName *string) func(*corev1.Pod) error {
 		}
 
 		Volume := corev1.Volume{
-			Name: "cnf-certsuite-preflight-dockerconfig",
+			Name: "certsuite-preflight-dockerconfig",
 			VolumeSource: corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
 					SecretName: *preflightSecretName,
@@ -201,7 +203,7 @@ func WithPreflightSecret(preflightSecretName *string) func(*corev1.Pod) error {
 
 		cnfCertCuiteContainer := getCnfCertSuiteContainer(p)
 		volumeMount := corev1.VolumeMount{
-			Name:      "cnf-certsuite-preflight-dockerconfig",
+			Name:      "certsuite-preflight-dockerconfig",
 			ReadOnly:  true,
 			MountPath: definitions.CnfPreflightConfigFolder,
 		}
