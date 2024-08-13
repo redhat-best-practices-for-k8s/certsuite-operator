@@ -20,8 +20,10 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
+	"syscall"
 	"time"
 
 	// appsv1 "k8s.io/api/apps/v1"
@@ -365,6 +367,36 @@ func (r *CnfCertificationSuiteRunReconciler) ApplyOperationOnPluginResources(op 
 	return nil
 }
 
+func (r *CnfCertificationSuiteRunReconciler) HandleConsolePlugin(done chan error) error {
+	// Create console plugin resources
+	err := r.ApplyOperationOnPluginResources(func(obj client.Object) error {
+		return r.Create(context.Background(), obj)
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create plugin, err: %v", err)
+	}
+	logger.Info("Operator's console plugin was installed successfully.")
+
+	// handle console plugin resources in operator termination
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
+	go func() {
+		<-sigs
+		err = r.ApplyOperationOnPluginResources(func(obj client.Object) error {
+			return r.Delete(context.Background(), obj)
+		})
+		if err != nil {
+			logger.Errorf("failed removing plugin's resources: %v", err)
+			done <- err
+			os.Exit(1)
+		}
+		logger.Infof("Operator's console plugin was removed successfully.")
+		done <- nil
+	}()
+
+	return nil
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *CnfCertificationSuiteRunReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	logger.Info("Setting up CnfCertificationSuiteRunReconciler's manager.")
@@ -374,14 +406,6 @@ func (r *CnfCertificationSuiteRunReconciler) SetupWithManager(mgr ctrl.Manager) 
 	if !found {
 		return fmt.Errorf("sidecar app img env var %q not found", definitions.SideCarImageEnvVar)
 	}
-
-	err := r.ApplyOperationOnPluginResources(func(obj client.Object) error {
-		return r.Create(context.Background(), obj)
-	})
-	if err != nil {
-		return fmt.Errorf("failed to create plugin, err: %v", err)
-	}
-	logger.Info("Operator's console plugin was installed successfully.")
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cnfcertificationsv1alpha1.CnfCertificationSuiteRun{}).
