@@ -86,7 +86,7 @@ jobs:
           ref: ${{ github.ref_name }}
 
       - name: Build and push sidecar app image
-        run: docker build --no-cache -t "${SIDECAR_IMG}" -f cnf-cert-sidecar/Dockerfile . && docker push ${SIDECAR_IMG}
+        run: docker build --no-cache -t "${SIDECAR_IMG}" -f certsuite-sidecar/Dockerfile . && docker push ${SIDECAR_IMG}
 
       - name: Build and push controller image
         run: make docker-build docker-push
