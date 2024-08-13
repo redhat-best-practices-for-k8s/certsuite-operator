@@ -1,4 +1,4 @@
-# CNF Certification Suite Operator
+# Certification Suite Operator
 
 [![red hat](https://img.shields.io/badge/red%20hat---?color=gray&logo=redhat&logoColor=red&style=flat)](https://www.redhat.com)
 [![openshift](https://img.shields.io/badge/openshift---?color=gray&logo=redhatopenshift&logoColor=red&style=flat)](https://www.redhat.com/en/technologies/cloud-computing/openshift)
@@ -6,9 +6,9 @@
 ## Description
 
 Kubernetes/Openshift Operator (scaffolded with operator-sdk) running the
-[CNF Certification Suite Container](https://github.com/test-network-function/cnf-certification-test).
+[Certification Suite Container](https://github.com/redhat-best-practices-for-k8s/certsuite-operator).
 
-The CNF Certification Suites provide a set of test cases for the
+The Certification Suites provide a set of test cases for the
 Containerized Network Functions/Cloud Native Functions (CNFs) to verify if
 best practices for deployment on Red Hat OpenShift clusters are followed.
 
@@ -16,12 +16,12 @@ best practices for deployment on Red Hat OpenShift clusters are followed.
 
 The Operator registers a CRD in the cluster: `CnfCertificationSuiteRun`.
 
-In order to fire up the CNF Certification Suite, the user must create
+In order to fire up the Certification Suite, the user must create
 a CnfCertificationSuiteRun CR, also informally referred as Run CR, which
 has to be created with a Config Map containing the cnf certification suites configuration,
 and a Secret containing the preflight suite credentials.
 **Note:** All resources mentioned above should be created in the operator's
-installation namespace (by default `cnf-certsuite-operator`)
+installation namespace (by default `certsuite-operator`)
 
 See resources relationship diagram:
 
@@ -31,7 +31,7 @@ When the CR is deployed, a new pod with two containers is created:
 
 1. Container built with the cnf certification image in order to run the suites.
 2. Container (sidecar) which updates the Run CR's status fields containing the
-CNF Certification suites results based on results claim file created by the
+Certification suites results based on results claim file created by the
 previous container.
 
 **See diagram summarizing the process:**
@@ -53,7 +53,7 @@ kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
 Clone Cnf Certification Operator repo:
 
 ```sh
-git clone https://github.com/test-network-function/cnf-certsuite-operator.git
+git clone https://github.com/redhat-best-practices-for-k8s/certsuite-operator.git
 ```
 
 #### Option 1: Using OLM subscription
@@ -61,7 +61,7 @@ git clone https://github.com/test-network-function/cnf-certsuite-operator.git
 1. Export OLM catalog image and namespace:
 
     ```sh
-    export OLM_INSTALL_IMG_CATALOG=<your-registry.com>/<your-repo>/cnf-certsuite-operator-catalog:<version>
+    export OLM_INSTALL_IMG_CATALOG=<your-registry.com>/<your-repo>/certsuite-operator-catalog:<version>
     export OLM_INSTALL_NAMESPACE=<your-namespace>
     ```
 
@@ -69,8 +69,8 @@ git clone https://github.com/test-network-function/cnf-certsuite-operator.git
     they will be set by default to:
 
     ```sh
-    OLM_INSTALL_IMG_CATALOG = quay.io/testnetworkfunction/cnf-certsuite-operator-catalog:latest
-    OLM_INSTALL_NAMESPACE = cnf-certsuite-operator
+    OLM_INSTALL_IMG_CATALOG = quay.io/redhat-best-practices-for-k8s/certsuite-operator-catalog:latest
+    OLM_INSTALL_NAMESPACE = certsuite-operator
     ```
 
 2. Install Cnf Certification Operator:\
@@ -89,12 +89,12 @@ git clone https://github.com/test-network-function/cnf-certsuite-operator.git
     NAME                                                              READY   STATUS      RESTARTS   AGE
     afa1738b451274ef681c19ae8e8a6dcc50f65568056ef97355a4a2fe14hbhpn   0/1     Completed   0          3m32s
     cnf-certsuite-controller-manager-67f68cd4cb-625ww                 2/2     Running     0          3m18s
-    cnf-certsuite-operator-olm-catalog-mkmqw                          1/1     Running     0          3m45s
+    certsuite-operator-olm-catalog-mkmqw                          1/1     Running     0          3m45s
     ```
     <!-- markdownlint-enable -->
 
     **Note:** If `OLM_INSTALL_NAMESPACE` environment variable wasn't exported
-    in previous steps, use `cnf-certsuite-operator` as namespace instead.
+    in previous steps, use `certsuite-operator` as namespace instead.
 
 #### Option 2: Manually building and deploying the operator
 
@@ -110,8 +110,8 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/downlo
 1. Export images environment variables:
 
     ```sh
-    export IMG=<your-registry.com>/<your-repo>/cnf-certsuite-operator:<version>
-    export SIDECAR_IMG=<your-registry.com>/<your-repo>/cnf-certsuite-operator-sidecar:<version>
+    export IMG=<your-registry.com>/<your-repo>/certsuite-operator:<version>
+    export SIDECAR_IMG=<your-registry.com>/<your-repo>/certsuite-operator-sidecar:<version>
     ```
 
 2. Build and upload the controller image to your registry account:
@@ -139,7 +139,7 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/downlo
 1. Export images environment variables (optional):
 
     ```sh
-    export IMG=<your-cnf-certsuite-operator-image-name>
+    export IMG=<your-certsuite-operator-image-name>
     export SIDECAR_IMG=<your-sidecar-app-image-name>
     ```
 
@@ -172,10 +172,10 @@ make deploy-samples
 ```
 
 **Note**: Current sample CnfCertificationSuiteRun CR configures
-the CNF Certification Suite to run the "observability" test suite only.
-It can be modified by changing manually the `labelsFilter` of the [sample CR](https://github.com/test-network-function/cnf-certsuite-operator/blob/main/config/samples/cnf-certifications_v1alpha1_cnfcertificationsuiterun.yaml).
+the Certification Suite to run the "observability" test suite only.
+It can be modified by changing manually the `labelsFilter` of the [sample CR](https://github.com/redhat-best-practices-for-k8s/certsuite-operator/blob/main/config/samples/cnf-certifications_v1alpha1_cnfcertificationsuiterun.yaml).
 
-### How to customize the CNF Certification Suite run
+### How to customize the Certification Suite run
 
 1. Create Resources
 
@@ -185,12 +185,12 @@ It can be modified by changing manually the `labelsFilter` of the [sample CR](ht
     1. Config map:\
     Containing the cnf certification configuration file
     content under the `tnf_config.yaml` key.\
-    (see [CNF Certification configuration description](https://test-network-function.github.io/cnf-certification-test/configuration/))
+    (see [Certification configuration description](https://redhat-best-practices-for-k8s.github.io/certsuite-operator/configuration/))
 
     2. Secret:\
     Containing cnf preflight suite credentials
     under the `preflight_dockerconfig.json` key.\
-    (see [Preflight Integration description](https://test-network-function.github.io/cnf-certification-test/runtime-env/#disable-intrusive-tests))
+    (see [Preflight Integration description](https://redhat-best-practices-for-k8s.github.io/certsuite-operator/runtime-env/#disable-intrusive-tests))
 
     3. CnfCertificationSuiteRun CR:\
     Containing the following Spec fields that has to be filled in:
@@ -205,7 +205,7 @@ It can be modified by changing manually the `labelsFilter` of the [sample CR](ht
         or "false" otherwise.\
         **Note:** When setting this field to true, the claim file will be sent to
         a server external to the cluster. see
-        [collector repository](https://github.com/test-network-function/collector)
+        [collector repository](https://github.com/redhat-best-practices-for-k8s/collector)
         for more details
         - **showAllResultsLogs**: Set to "true" to show all result's logs,
         and not only logs of failed test cases.
@@ -214,7 +214,7 @@ It can be modified by changing manually the `labelsFilter` of the [sample CR](ht
         resources of all results. and not only compliant and non-compliant
         resources of failed test cases. This field is set to "false" by default.
 
-        See a [sample CnfCertificationSuiteRun CR](https://github.com/test-network-function/cnf-certsuite-operator/blob/main/config/samples/cnf-certifications_v1alpha1_cnfcertificationsuiterun.yaml)
+        See a [sample CnfCertificationSuiteRun CR](https://github.com/redhat-best-practices-for-k8s/certsuite-operator/blob/main/config/samples/cnf-certifications_v1alpha1_cnfcertificationsuiterun.yaml)
 
 2. Apply resources into the cluster
 
@@ -233,12 +233,12 @@ It can be modified by changing manually the `labelsFilter` of the [sample CR](ht
 ### Review results
 
 If all of the resources were applied successfully, the cnf certification suites
-will run on a new created `pod` in the `cnf-certsuite-operator` namespace.
+will run on a new created `pod` in the `certsuite-operator` namespace.
 The pod has the name with the form `cnf-job-run-N`:
 
 <!-- markdownlint-disable -->
 ```sh
-$ oc get pods -n cnf-certsuite-operator 
+$ oc get pods -n certsuite-operator 
 NAME                                                READY   STATUS      RESTARTS   AGE
 cnf-certsuite-controller-manager-6c6bb6d965-jslmd   2/2     Running     0          21h
 cnf-job-run-1                                       0/2     Completed   0          21h
@@ -250,12 +250,12 @@ by checking CnfCertificationSuiteRun CR's status.
 In the successful case, expect to see the following status:
 
 ```sh
-$ oc get cnfcertificationsuiteruns.cnf-certifications.redhat.com -n cnf-certsuite-operator
+$ oc get cnfcertificationsuiteruns.cnf-certifications.redhat.com -n certsuite-operator
 NAME                              AGE   STATUS
 cnfcertificationsuiterun-sample   50m   CertSuiteFinished
 ```
 
-The status `CertSuiteFinished` means the CNF Cert Suite pod has finished running
+The status `CertSuiteFinished` means the Cert Suite pod has finished running
 all the test cases, so the results can be inspected in field `report` of the Run
 CR's (cnfcertificationsuiterun-sample) status subresource.
 
@@ -294,14 +294,14 @@ If the the result is "skipped" or "failed" contains also the skip\failure reason
     <!-- markdownlint-enable -->
 
 - Summary: Summarize the total number of tests by their results.
-- Verdict: Specifies the overall result of the CNF certificattion suites run.\
+- Verdict: Specifies the overall result of the certificattion suites run.\
 Poissible verdicts: "pass", "skip", "fail", "error".
 
 Run the following command to ensure its creation:
 
 <!-- markdownlint-disable -->
 ```sh
-$ oc get cnfcertificationsuiteruns.cnf-certifications.redhat.com -n cnf-certsuite-operator cnfcertificationsuiterun-sample -o json | jq '.status.report.verdict'
+$ oc get cnfcertificationsuiteruns.cnf-certifications.redhat.com -n certsuite-operator cnfcertificationsuiterun-sample -o json | jq '.status.report.verdict'
 "pass"
 ```
 <!-- markdownlint-enable -->

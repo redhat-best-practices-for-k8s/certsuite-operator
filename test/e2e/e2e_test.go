@@ -27,7 +27,7 @@ import (
 	"github.com/redhat-best-practices-for-k8s/certsuite-operator/test/utils"
 )
 
-const namespace = "cnf-certsuite-operator-system"
+const namespace = "certsuite-operator-system"
 
 var _ = Describe("controller", Ordered, func() {
 	BeforeAll(func() {
@@ -60,7 +60,7 @@ var _ = Describe("controller", Ordered, func() {
 			var err error
 
 			// projectimage stores the name of the image used in the example
-			var projectimage = "example.com/cnf-certsuite-operator:v0.0.1"
+			var projectimage = "example.com/certsuite-operator:v0.0.1"
 			projectimageStr := fmt.Sprintf("IMG=%s", projectimage)
 
 			By("building the manager(Operator) image")

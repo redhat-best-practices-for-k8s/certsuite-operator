@@ -13,7 +13,7 @@ spec:
     service:
       basePath: /
       name: cnf-certsuite-plugin
-      namespace: cnf-certsuite-operator
+      namespace: certsuite-operator
       port: 9001
     type: Service
   displayName: OpenShift Console Demo Plugin

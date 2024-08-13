@@ -101,12 +101,12 @@ func Test_getCertSuiteContainerExitStatus(t *testing.T) {
 			certSuitePod: &corev1.Pod{
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "cnf-job-sample",
-					Namespace: "cnf-certsuite-operator",
+					Namespace: "certsuite-operator",
 				},
 				Status: corev1.PodStatus{},
 			},
 			wantExitStatus: 0,
-			wantError:      fmt.Errorf("failed to get cert suite exit status: container not found in pod cnf-job-sample (ns cnf-certsuite-operator)"),
+			wantError:      fmt.Errorf("failed to get cert suite exit status: container not found in pod cnf-job-sample (ns certsuite-operator)"),
 		},
 	}
 	for _, tc := range tests {
@@ -138,13 +138,13 @@ func TestCnfCertificationSuiteRunReconciler_waitForCertSuitePodToComplete(t *tes
 			timeOut:            10 * time.Second,
 			phase:              corev1.PodRunning,
 			wantExitStatusCode: 0,
-			wantError:          fmt.Errorf("timeout (10s) reached while waiting for cert suite pod cnf-certsuite-operator/cnf-job-sample to finish"),
+			wantError:          fmt.Errorf("timeout (10s) reached while waiting for cert suite pod certsuite-operator/cnf-job-sample to finish"),
 		},
 	}
 
 	certSuitePodNamespacedName := types.NamespacedName{
 		Name:      "cnf-job-sample",
-		Namespace: "cnf-certsuite-operator",
+		Namespace: "certsuite-operator",
 	}
 	for _, tc := range tests {
 		certSuitePod := &corev1.Pod{
@@ -189,7 +189,7 @@ func TestCnfCertificationSuiteRunReconciler_updateStatus(t *testing.T) {
 			},
 			runCRNamespacedName: types.NamespacedName{
 				Name:      "cnf-run-sample",
-				Namespace: "cnf-certsuite-operator",
+				Namespace: "certsuite-operator",
 			},
 			wantErr: false,
 		},
@@ -213,7 +213,7 @@ func TestCnfCertificationSuiteRunReconciler_updateStatus(t *testing.T) {
 	runCR := &cnfcertificationsv1alpha1.CnfCertificationSuiteRun{
 		ObjectMeta: v1.ObjectMeta{
 			Name:      "cnf-run-sample",
-			Namespace: "cnf-certsuite-operator",
+			Namespace: "certsuite-operator",
 		},
 		Status: cnfcertificationsv1alpha1.CnfCertificationSuiteRunStatus{
 			Phase: definitions.CnfCertificationSuiteRunStatusCertSuiteRunning,

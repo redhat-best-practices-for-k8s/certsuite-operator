@@ -42,7 +42,7 @@ spec:
         - name: nginx-conf
           configMap:
             name: nginx-configmap
-            namespace: cnf-certsuite-operator
+            namespace: certsuite-operator
             defaultMode: 420
       restartPolicy: Always
       dnsPolicy: ClusterFirst
