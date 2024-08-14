@@ -318,7 +318,7 @@ func (r *CnfCertificationSuiteRunReconciler) generateSinglePluginResourceObj(fil
 	return clientObj, nil
 }
 
-func (r *CnfCertificationSuiteRunReconciler) generatePluginResourcesObjs() ([]*client.Object, error) {
+func (r *CnfCertificationSuiteRunReconciler) generatePluginResourcesObjs() ([]client.Object, error) {
 	var pluginDir = "/plugin"
 
 	// Read all  plugin's resources (written in yaml files)
@@ -335,7 +335,7 @@ func (r *CnfCertificationSuiteRunReconciler) generatePluginResourcesObjs() ([]*c
 	}
 
 	// Iterate over all plugin's resources
-	pluginObjList := []*client.Object{}
+	pluginObjList := []client.Object{}
 	decoder := serializer.NewCodecFactory(r.Scheme).UniversalDeserializer()
 	for _, file := range yamlFiles {
 		yamlfilepath := filepath.Join(pluginDir, file.Name())
@@ -343,7 +343,7 @@ func (r *CnfCertificationSuiteRunReconciler) generatePluginResourcesObjs() ([]*c
 		if err != nil {
 			return nil, err
 		}
-		pluginObjList = append(pluginObjList, &obj)
+		pluginObjList = append(pluginObjList, obj)
 	}
 	return pluginObjList, nil
 }
@@ -357,7 +357,7 @@ func (r *CnfCertificationSuiteRunReconciler) ApplyOperationOnPluginResources(op 
 
 	// Apply given operation on plugin resources
 	for _, obj := range pluginObjsList {
-		err = op(*obj)
+		err = op(obj)
 		if err != nil {
 			logger.Errorf("failed to apply operation on plugin resource, err: %v", err)
 			return err
@@ -382,16 +382,9 @@ func (r *CnfCertificationSuiteRunReconciler) HandleConsolePlugin(done chan error
 	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
 		<-sigs
-		err = r.ApplyOperationOnPluginResources(func(obj client.Object) error {
+		done <- r.ApplyOperationOnPluginResources(func(obj client.Object) error {
 			return r.Delete(context.Background(), obj)
 		})
-		if err != nil {
-			logger.Errorf("failed removing plugin's resources: %v", err)
-			done <- err
-			os.Exit(1)
-		}
-		logger.Infof("Operator's console plugin was removed successfully.")
-		done <- nil
 	}()
 
 	return nil

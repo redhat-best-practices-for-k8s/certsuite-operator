@@ -161,8 +161,8 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "CnfCertificationSuiteRun")
 		os.Exit(1)
 	}
-	consolePluginDone := make(chan error)
-	if err := r.HandleConsolePlugin(consolePluginDone); err != nil {
+	consolePluginRemovalDone := make(chan error)
+	if err := r.HandleConsolePlugin(consolePluginRemovalDone); err != nil {
 		setupLog.Error(err, "error has occurred while handling console plugin")
 		os.Exit(1)
 	}
@@ -189,6 +189,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	// wait until console plugin's go routine finishes
-	<-consolePluginDone
+	// Wait for openshift's console plugin removal procedure to finish.
+	if err := <-consolePluginRemovalDone; err != nil {
+		setupLog.Error(err, "failed to remove openshift console plugin resources")
+		os.Exit(1)
+	}
 }
