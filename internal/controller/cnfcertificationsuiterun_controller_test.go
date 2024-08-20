@@ -237,7 +237,7 @@ func TestCnfCertificationSuiteRunReconciler_updateStatus(t *testing.T) {
 			}
 			err = tc.statusCheckerFn(&updatedRunCR.Status)
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Errorf("%s", err.Error())
 			}
 		}
 	}
