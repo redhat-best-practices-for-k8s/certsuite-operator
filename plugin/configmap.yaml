@@ -4,10 +4,10 @@ metadata:
   name: nginx-configmap
   namespace: OPERATOR_NS_PLACEHOLDER
   labels:
-    app: cnf-certsuite-plugin
-    app.kubernetes.io/component: cnf-certsuite-plugin
-    app.kubernetes.io/instance: cnf-certsuite-plugin
-    app.kubernetes.io/part-of: cnf-certsuite-plugin
+    app: certsuite-operator-plugin
+    app.kubernetes.io/component: certsuite-operator-plugin
+    app.kubernetes.io/instance: certsuite-operator-plugin
+    app.kubernetes.io/part-of: certsuite-operator-plugin
 data:
   nginx.conf: |
     error_log /dev/stdout info;

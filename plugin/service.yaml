@@ -3,13 +3,13 @@ kind: Service
 metadata:
   annotations:
     service.alpha.openshift.io/serving-cert-secret-name: console-serving-cert
-  name: cnf-certsuite-plugin
+  name: certsuite-operator-plugin
   namespace: OPERATOR_NS_PLACEHOLDER
   labels:
-    app: cnf-certsuite-plugin
-    app.kubernetes.io/component: cnf-certsuite-plugin
-    app.kubernetes.io/instance: cnf-certsuite-plugin
-    app.kubernetes.io/part-of: cnf-certsuite-plugin
+    app: certsuite-operator-plugin
+    app.kubernetes.io/component: certsuite-operator-plugin
+    app.kubernetes.io/instance: certsuite-operator-plugin
+    app.kubernetes.io/part-of: certsuite-operator-plugin
 spec:
   ports:
     - name: 9001-tcp
@@ -17,6 +17,6 @@ spec:
       port: 9001
       targetPort: 9001
   selector:
-    app: cnf-certsuite-plugin
+    app: certsuite-operator-plugin
   type: ClusterIP
   sessionAffinity: None

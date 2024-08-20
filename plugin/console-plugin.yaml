@@ -1,18 +1,18 @@
 apiVersion: console.openshift.io/v1
 kind: ConsolePlugin
 metadata:
-  name: cnf-certsuite-plugin
+  name: certsuite-operator-plugin
   namespace: OPERATOR_NS_PLACEHOLDER
   labels:
-    app: cnf-certsuite-plugin
-    app.kubernetes.io/component: cnf-certsuite-plugin
-    app.kubernetes.io/instance: cnf-certsuite-plugin
-    app.kubernetes.io/part-of: cnf-certsuite-plugin
+    app: certsuite-operator-plugin
+    app.kubernetes.io/component: certsuite-operator-plugin
+    app.kubernetes.io/instance: certsuite-operator-plugin
+    app.kubernetes.io/part-of: certsuite-operator-plugin
 spec:
   backend:
     service:
       basePath: /
-      name: cnf-certsuite-plugin
+      name: certsuite-operator-plugin
       namespace: certsuite-operator
       port: 9001
     type: Service
