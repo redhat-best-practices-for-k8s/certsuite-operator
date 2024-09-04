@@ -5,7 +5,7 @@ go 1.22.6
 require (
 	github.com/go-logr/logr v1.4.2
 	github.com/onsi/ginkgo/v2 v2.20.2
-	github.com/onsi/gomega v1.34.1
+	github.com/onsi/gomega v1.34.2
 	github.com/sirupsen/logrus v1.9.3
 	k8s.io/api v0.31.0
 	k8s.io/apimachinery v0.31.0
