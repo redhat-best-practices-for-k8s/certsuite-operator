@@ -59,7 +59,7 @@ crJson=$(oc get certsuiterun -n "${CNF_CERTSUITE_OPERATOR_NAMESPACE}" certsuiter
 echo "$crJson" | jq
 
 # Run checks for verdict and counters.
-export EXPECTED_VERDICT=${EXPECTED_VERDICT:-"pass"}
+export EXPECTED_VERDICT=${EXPECTED_VERDICT:-"fail"}
 export EXPECTED_TOTAL_TCS=${EXPECTED_TOTAL_TCS:-"99"}
 export EXPECTED_FAILED=${EXPECTED_FAILED:-"1"}
 export EXPECTED_PASSED=${EXPECTED_PASSED:-"4"}
