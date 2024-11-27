@@ -229,8 +229,10 @@ func (r *CertsuiteRunReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, client.IgnoreNotFound(getErr)
 	}
 
-	if podName, exist := certificationRuns[runCrNamespacedName]; exist {
-		logger.Infof("There's a certification job pod=%v running already. Ignoring changes in CertsuiteRun %v", podName, runCrNamespacedName)
+	// Check if pod has already been created for given CersuiteRun CR.
+	if runCR.Status.CnfCertSuitePodName != nil && *runCR.Status.CnfCertSuitePodName != "" {
+		logger.Infof("Waiting for certsuite job pod %s to finish running", *runCR.Status.CnfCertSuitePodName)
+		r.handleEndOfCnfCertSuiteRun(runCR.Name, *runCR.Status.CnfCertSuitePodName, runCR.Namespace, runCR.Spec.TimeOut)
 		return ctrl.Result{}, nil
 	}
 
@@ -296,8 +298,7 @@ func (r *CertsuiteRunReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	logger.Infof("Running CNF Cert job pod %s, triggered by CR %v", certSuitePodName, runCrNamespacedName)
 
-	go r.handleEndOfCnfCertSuiteRun(runCR.Name, certSuitePodName, runCR.Namespace, runCR.Spec.TimeOut)
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: 15 * time.Second}, nil
 }
 
 func (r *CertsuiteRunReconciler) generateSinglePluginResourceObj(filePath, ns string, decoder runtime.Decoder) (client.Object, error) {
