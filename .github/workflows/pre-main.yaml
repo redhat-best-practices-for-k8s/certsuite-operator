@@ -21,7 +21,7 @@ jobs:
       - name: Set up Go 1.23
         uses: actions/setup-go@v5
         with:
-          go-version: 1.23.2
+          go-version: 1.23.3
 
       - name: Disable default go problem matcher
         run: echo "::remove-matcher owner=go::"
@@ -47,7 +47,7 @@ jobs:
       - name: Golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.60
+          version: v1.62
           args: --timeout 10m0s
 
       - name: Checkmake
