@@ -20,10 +20,8 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strconv"
-	"syscall"
 	"time"
 
 	// appsv1 "k8s.io/api/apps/v1"
@@ -43,6 +41,7 @@ import (
 	cnfcertjob "github.com/redhat-best-practices-for-k8s/certsuite-operator/internal/controller/cnf-cert-job"
 	"github.com/redhat-best-practices-for-k8s/certsuite-operator/internal/controller/definitions"
 	controllerlogger "github.com/redhat-best-practices-for-k8s/certsuite-operator/internal/controller/logger"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 var sideCarImage string
@@ -73,10 +72,12 @@ const (
 // +kubebuilder:rbac:groups=best-practices-for-k8s.openshift.io,namespace=certsuite-operator,resources=certsuiteruns/finalizers,verbs=update
 
 // +kubebuilder:rbac:groups="",namespace=certsuite-operator,resources=pods,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups="",namespace=certsuite-operator,resources=secrets;configMaps,verbs=get;list;watch
-// +kubebuilder:rbac:groups="",namespace=certsuite-operator,resources=namespaces;services;configMaps,verbs=create;delete
+// +kubebuilder:rbac:groups="",namespace=certsuite-operator,resources=secrets,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",namespace=certsuite-operator,resources=configMaps,verbs=get;list;watch;create;delete
+// +kubebuilder:rbac:groups="",namespace=certsuite-operator,resources=services,verbs=create;delete
+// +kubebuilder:rbac:groups="",namespace=certsuite-operator,resources=namespaces,verbs=get;list
 
-// +kubebuilder:rbac:groups="console.openshift.io",resources=consoleplugins,verbs=create; delete
+// +kubebuilder:rbac:groups="console.openshift.io",resources=consoleplugins,verbs=create;delete
 // +kubebuilder:rbac:groups="apps",namespace=certsuite-operator,resources=deployments,verbs=create;get;list;watch;delete
 
 func ignoreUpdatePredicate() predicate.Predicate {
@@ -368,25 +369,27 @@ func (r *CertsuiteRunReconciler) ApplyOperationOnPluginResources(op func(obj cli
 	return nil
 }
 
-func (r *CertsuiteRunReconciler) HandleConsolePlugin(done chan error) error {
+func (r *CertsuiteRunReconciler) HandleConsolePlugin() error {
 	// Create console plugin resources
 	err := r.ApplyOperationOnPluginResources(func(obj client.Object) error {
-		return r.Create(context.Background(), obj)
+		logger.Info("Creating console plugin resource", "namespace", obj.GetNamespace(), "name", obj.GetName(), "kind", obj.GetObjectKind().GroupVersionKind().Kind)
+		err := r.Create(context.Background(), obj)
+		if err != nil {
+			if k8serrors.IsAlreadyExists(err) {
+				logger.Info("Openshift Console plugin resource already exists", "namespace", obj.GetNamespace(), "name", obj.GetName(), "kind", obj.GetObjectKind().GroupVersionKind().Kind)
+			} else {
+				return err
+			}
+		}
+
+		return nil
 	})
+
 	if err != nil {
 		return fmt.Errorf("failed to create plugin, err: %v", err)
 	}
-	logger.Info("Operator's console plugin was installed successfully.")
 
-	// handle console plugin resources in operator termination
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
-	go func() {
-		<-sigs
-		done <- r.ApplyOperationOnPluginResources(func(obj client.Object) error {
-			return r.Delete(context.Background(), obj)
-		})
-	}()
+	logger.Info("Operator's console plugin was installed successfully.")
 
 	return nil
 }
