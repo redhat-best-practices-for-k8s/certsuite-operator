@@ -63,8 +63,9 @@ var (
 )
 
 const (
-	checkInterval              = 5 * time.Second
-	defaultCnfCertSuiteTimeout = time.Hour
+	checkInterval             = 10 * time.Second
+	defaultCertSuiteTimeout   = time.Hour
+	certSuiteTimeoutSafeGuard = 2 * time.Minute
 )
 
 // +kubebuilder:rbac:groups=best-practices-for-k8s.openshift.io,namespace=certsuite-operator,resources=certsuiteruns,verbs=get;list;watch;create;update;patch;delete
@@ -132,72 +133,64 @@ func getJobRunTimeThreshold(timeoutStr string) time.Duration {
 	jobRunTimeThreshold, err := time.ParseDuration(timeoutStr)
 	if err != nil {
 		logger.Info("Couldn't extarct job run timeout, setting default timeout.")
-		return defaultCnfCertSuiteTimeout
+		return defaultCertSuiteTimeout
 	}
 	return jobRunTimeThreshold
 }
 
-func (r *CertsuiteRunReconciler) waitForCertSuitePodToComplete(certSuitePodNamespacedName types.NamespacedName, timeOut time.Duration) (exitStatusCode int32, err error) {
-	for startTime := time.Now(); time.Since(startTime) < timeOut; {
-		certSuitePod := corev1.Pod{}
-		err = r.Get(context.TODO(), certSuitePodNamespacedName, &certSuitePod)
-		if err != nil {
-			return 0, err
-		}
-
-		switch certSuitePod.Status.Phase {
-		case corev1.PodSucceeded:
-			logger.Info("Cnf job pod has completed successfully.")
-			return 0, nil
-		case corev1.PodFailed:
-			logger.Info("Cnf job pod has completed with failure.")
-			exitStatus, err := getCertSuiteContainerExitStatus(&certSuitePod)
-			if err != nil {
-				return 0, err
-			}
-			return exitStatus, nil
-		default:
-			logger.Infof("Cnf job pod is running. Current status: %s", certSuitePod.Status.Phase)
-			time.Sleep(checkInterval)
+func getContainerStatus(p *corev1.Pod, containerName string) *corev1.ContainerStatus {
+	for i := range p.Status.ContainerStatuses {
+		if p.Spec.Containers[i].Name == containerName {
+			return &p.Status.ContainerStatuses[i]
 		}
 	}
-
-	return 0, fmt.Errorf("timeout (%s) reached while waiting for cert suite pod %v to finish", timeOut, certSuitePodNamespacedName)
+	return nil
 }
 
-func getCertSuiteContainerExitStatus(certSuitePod *corev1.Pod) (int32, error) {
-	for i := range certSuitePod.Status.ContainerStatuses {
-		containerStatus := &certSuitePod.Status.ContainerStatuses[i]
-		if containerStatus.Name == definitions.CnfCertSuiteContainerName {
-			return containerStatus.State.Terminated.ExitCode, nil
-		}
-	}
-
-	return 0, fmt.Errorf("failed to get cert suite exit status: container not found in pod %s (ns %s)", certSuitePod.Name, certSuitePod.Namespace)
-}
-
-func (r *CertsuiteRunReconciler) handleEndOfCnfCertSuiteRun(runCrName, certSuitePodName, namespace, reqTimeout string) {
+func (r *CertsuiteRunReconciler) handleEndOfCnfCertSuiteRun(runCrName, certSuitePodName, namespace, timeout string) (ctrl.Result, error) {
 	certSuitePodNamespacedName := types.NamespacedName{Name: certSuitePodName, Namespace: namespace}
 	runCrNamespacedName := types.NamespacedName{Name: runCrName, Namespace: namespace}
 
-	certSuiteTimeout := getJobRunTimeThreshold(reqTimeout)
-	certSuiteExitStatusCode, err := r.waitForCertSuitePodToComplete(certSuitePodNamespacedName, certSuiteTimeout)
+	certSuitePod := corev1.Pod{}
+	err := r.Get(context.TODO(), certSuitePodNamespacedName, &certSuitePod)
 	if err != nil {
-		logger.Errorf("failed to handle end of cert suite run: %v", err)
+		return ctrl.Result{}, fmt.Errorf("unable to get pod %s in ns %s: %v", certSuitePodNamespacedName.Name, certSuitePodNamespacedName.Namespace, err)
 	}
 
-	// cnf-cert-job has terminated - checking exit status of cert suite
-	if certSuiteExitStatusCode == 0 {
-		logger.Info("CNF Cert job has finished running.")
-		err = r.updateStatusPhase(runCrNamespacedName, definitions.CertsuiteRunStatusPhaseJobFinished)
-	} else {
-		logger.Info("CNF Cert job encountered an error. Exit status: ", certSuiteExitStatusCode)
-		err = r.updateStatusPhase(runCrNamespacedName, definitions.CertsuiteRunStatusPhaseJobError)
+	// check if pod's certsuite container has finished running.
+	certSuiteContainer := getContainerStatus(&certSuitePod, definitions.CnfCertSuiteContainerName)
+	if certSuiteContainer == nil {
+		return ctrl.Result{}, fmt.Errorf("container %s does not exist in pod %s", definitions.CnfCertSuiteContainerName, certSuitePodNamespacedName)
+	}
+	if certSuiteContainer.State.Terminated == nil {
+		// check whether timeout has exceeded.
+		elapsedTime := time.Since(certSuiteContainer.State.Running.StartedAt.Time)
+		certSuiteTimeout := getJobRunTimeThreshold(timeout)
+		if elapsedTime > certSuiteTimeout+certSuiteTimeoutSafeGuard {
+			return ctrl.Result{}, fmt.Errorf("timeout of %s pod has reached while pod is still running", certSuitePodNamespacedName)
+		}
+		// certsuite container is still running haven't exceeded timeout, retrigger reconcile loop in 10 seconds
+		logger.Infof("certsuite pod %s is still running, waiting 10 seconds...", runCrNamespacedName)
+		return ctrl.Result{RequeueAfter: checkInterval}, nil
 	}
 
-	if err != nil {
-		logger.Errorf("Failed to update status field Phase of CR %s: %v", runCrNamespacedName, err)
+	// certsuite container has finished running, check cert suite's exit status.
+	certSuiteExitStatusCode := int32(0)
+	var phase cnfcertificationsv1alpha1.StatusPhase
+	switch certSuiteContainer.State.Terminated.ExitCode {
+	case 0:
+		logger.Infof("certsuite pod %s has finished running.", runCrNamespacedName)
+		phase = definitions.CertsuiteRunStatusPhaseJobFinished
+	default:
+		logger.Infof("certsuite pod %s has encountered an error. Exit status: %v", runCrNamespacedName, certSuiteExitStatusCode)
+		phase = definitions.CertsuiteRunStatusPhaseJobError
 	}
+
+	if err := r.updateStatusPhase(runCrNamespacedName, phase); err != nil {
+		return ctrl.Result{}, fmt.Errorf("failed to update status field Phase of CR %s: %v", runCrNamespacedName, err)
+	}
+
+	return ctrl.Result{}, nil
 }
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -214,6 +207,7 @@ func (r *CertsuiteRunReconciler) handleEndOfCnfCertSuiteRun(runCrName, certSuite
 func (r *CertsuiteRunReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger.Info("Reconciling CertsuiteRun CRD.")
 
+	// Get req CertsuiteRun CR
 	runCrNamespacedName := types.NamespacedName{Name: req.Name, Namespace: req.Namespace}
 	var runCR cnfcertificationsv1alpha1.CertsuiteRun
 	if getErr := r.Get(ctx, req.NamespacedName, &runCR); getErr != nil {
@@ -229,13 +223,14 @@ func (r *CertsuiteRunReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, client.IgnoreNotFound(getErr)
 	}
 
-	// Check if pod has already been created for given CersuiteRun CR.
+	// Handle event of existing certsuite job pod.
 	if runCR.Status.CnfCertSuitePodName != nil && *runCR.Status.CnfCertSuitePodName != "" {
-		logger.Infof("Waiting for certsuite job pod %s to finish running", *runCR.Status.CnfCertSuitePodName)
-		r.handleEndOfCnfCertSuiteRun(runCR.Name, *runCR.Status.CnfCertSuitePodName, runCR.Namespace, runCR.Spec.TimeOut)
-		return ctrl.Result{}, nil
+		logger.Infof("Handling end of run of %s pod in ns: %s", *runCR.Status.CnfCertSuitePodName, runCR.Namespace)
+		ctrlResult, err := r.handleEndOfCnfCertSuiteRun(runCR.Name, *runCR.Status.CnfCertSuitePodName, runCR.Namespace, runCR.Spec.TimeOut)
+		return ctrlResult, err
 	}
 
+	// Handle event of New CertsuiteRun CR creation.
 	logger.Infof("New CNF Certification Job run requested: %v", runCrNamespacedName)
 
 	certSuitePodID++
@@ -298,7 +293,8 @@ func (r *CertsuiteRunReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	logger.Infof("Running CNF Cert job pod %s, triggered by CR %v", certSuitePodName, runCrNamespacedName)
 
-	return ctrl.Result{RequeueAfter: 15 * time.Second}, nil
+	// Certsuite job pod has been created for a new CertsuiteRun CR, retrigger reconcile function after 10 seconds.
+	return ctrl.Result{RequeueAfter: checkInterval}, nil
 }
 
 func (r *CertsuiteRunReconciler) generateSinglePluginResourceObj(filePath, ns string, decoder runtime.Decoder) (client.Object, error) {
