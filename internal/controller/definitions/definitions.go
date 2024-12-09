@@ -6,6 +6,7 @@ const (
 	CertsuiteRunStatusCertSuiteRunning            = "CertSuiteRunning"
 	CertsuiteRunStatusPhaseJobFinished            = "CertSuiteFinished"
 	CertsuiteRunStatusPhaseJobError               = "CertSuiteError"
+	CertsuiteRunStatusPhaseJobTimeout             = "CertSuiteTimeout"
 )
 
 const (
