@@ -167,7 +167,11 @@ func (r *CertsuiteRunReconciler) handleEndOfCnfCertSuiteRun(runCrName, certSuite
 		elapsedTime := time.Since(certSuiteContainer.State.Running.StartedAt.Time)
 		certSuiteTimeout := getJobRunTimeThreshold(timeout)
 		if elapsedTime > certSuiteTimeout+certSuiteTimeoutSafeGuard {
-			return ctrl.Result{}, fmt.Errorf("timeout of %s pod has reached while pod is still running", certSuitePodNamespacedName)
+			logger.Errorf("timeout of %s pod has reached while pod is still running", certSuitePodNamespacedName)
+			if err := r.updateStatusPhase(runCrNamespacedName, definitions.CertsuiteRunStatusPhaseJobTimeout); err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to update status field Phase of CR %s: %v", runCrNamespacedName, err)
+			}
+			return ctrl.Result{}, nil
 		}
 		// certsuite container is still running haven't exceeded timeout, retrigger reconcile loop in 10 seconds
 		logger.Infof("certsuite pod %s is still running, waiting 10 seconds...", runCrNamespacedName)
