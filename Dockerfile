@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM golang:1.23 AS builder
+FROM mirror.gcr.io/library/golang:1.23 AS builder
 ARG TARGETOS
 ARG TARGETARCH
 
