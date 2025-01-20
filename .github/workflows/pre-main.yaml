@@ -63,7 +63,7 @@ jobs:
       #   run: shfmt -d *.sh script
 
       - name: Markdownlint
-        uses: nosborn/github-action-markdown-cli@v3.3.0
+        uses: nosborn/github-action-markdown-cli@v3.4.0
         with:
           files: .
 
