@@ -32,7 +32,7 @@ metadata:
       ]
     capabilities: Basic Install
     console.openshift.io/plugins: '["certsuite-plugin"]'
-    createdAt: "2024-08-22T09:30:14Z"
+    createdAt: "2025-02-07T07:37:33Z"
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
   name: rh-best-practices-for-k8s-certsuite-operator.v0.0.1
@@ -113,8 +113,7 @@ spec:
             spec:
               containers:
               - args:
-                - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:8080
+                - --metrics-bind-address=:8443
                 - --leader-elect
                 command:
                 - /manager
@@ -164,29 +163,6 @@ spec:
                 - mountPath: /tmp/k8s-webhook-server/serving-certs
                   name: cert
                   readOnly: true
-              - args:
-                - --secure-listen-address=0.0.0.0:8443
-                - --upstream=http://127.0.0.1:8080/
-                - --logtostderr=true
-                - --v=0
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.15.0
-                name: kube-rbac-proxy
-                ports:
-                - containerPort: 8443
-                  name: https
-                  protocol: TCP
-                resources:
-                  limits:
-                    cpu: 500m
-                    memory: 128Mi
-                  requests:
-                    cpu: 5m
-                    memory: 64Mi
-                securityContext:
-                  allowPrivilegeEscalation: false
-                  capabilities:
-                    drop:
-                    - ALL
               securityContext:
                 runAsNonRoot: true
               serviceAccountName: certsuite-controller-manager
@@ -233,20 +209,19 @@ spec:
           - ""
           resources:
           - configMaps
-          - namespaces
-          - services
           verbs:
           - create
           - delete
-        - apiGroups:
-          - ""
-          resources:
-          - configMaps
-          - secrets
-          verbs:
           - get
           - list
           - watch
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          verbs:
+          - get
+          - list
         - apiGroups:
           - ""
           resources:
@@ -259,6 +234,21 @@ spec:
           - patch
           - update
           - watch
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - services
+          verbs:
+          - create
+          - delete
         - apiGroups:
           - apps
           resources:
