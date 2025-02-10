@@ -103,6 +103,7 @@ func SetRunCRStatus(runCR *cnfcertificationsv1alpha1.CertsuiteRun, claimSchema *
 		tcResult := (*testSuiteResults)[tcName]
 		testCaseResult := cnfcertificationsv1alpha1.TestCaseResult{
 			TestCaseName: tcName,
+			Description:  tcResult.CatalogInfo.Description,
 			Result:       tcResult.State,
 		}
 
@@ -116,6 +117,7 @@ func SetRunCRStatus(runCR *cnfcertificationsv1alpha1.CertsuiteRun, claimSchema *
 			failedTests++
 			testCaseResult.Reason = tcResult.FailureReason
 			testCaseResult.Logs = tcResult.CapturedTestOutput
+			testCaseResult.Remediation = tcResult.CatalogInfo.Remediation
 		case cnfcertificationsv1alpha1.StatusStateError:
 			erroredTests++
 		}

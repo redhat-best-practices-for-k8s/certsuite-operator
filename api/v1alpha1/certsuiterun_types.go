@@ -133,9 +133,11 @@ type TargetResources struct {
 // TestCaseResult holds a test case result
 type TestCaseResult struct {
 	TestCaseName string `json:"testCaseName"`
+	Description  string `json:"description"`
 	//+kubebuilder:validation:Enum=passed;skipped;failed;error
 	Result          string           `json:"result"`
 	Reason          string           `json:"reason,omitempty"`
+	Remediation     string           `json:"remediation,omitempty"`
 	Logs            string           `json:"logs,omitempty"`
 	TargetResources *TargetResources `json:"targetResources,omitempty"`
 }
