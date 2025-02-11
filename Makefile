@@ -53,8 +53,8 @@ endif
 OPERATOR_SDK_VERSION ?= v1.36.1
 
 # Image URL to use all building/pushing image targets
-IMG ?= quay.io/redhat-best-practices-for-k8s/certsuite-operator:v$(VERSION)
-SIDECAR_IMG ?= quay.io/redhat-best-practices-for-k8s/certsuite-operator-sidecar:v$(VERSION)
+IMG ?= $(IMAGE_TAG_BASE):v$(VERSION)
+SIDECAR_IMG ?= $(IMAGE_TAG_BASE)-sidecar:v$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.28.3
 
@@ -202,7 +202,8 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	cd config/manager \
 	  && $(KUSTOMIZE) edit set image controller=${IMG} \
-      && $(KUSTOMIZE) edit add patch --kind Deployment --patch "[{\"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/env/1\", \"value\": {\"name\": \"SIDECAR_APP_IMG\", \"value\": \"${SIDECAR_IMG}\"} }]"
+	  && $(KUSTOMIZE) edit set annotation certsuite-operator/sidecar-image:${SIDECAR_IMG}
+
 	cd config/crd && $(KUSTOMIZE) edit add patch --path patches/cainjection_in_certsuiteruns.yaml
 	$(KUSTOMIZE) build config/default/manual-deploy | $(KUBECTL) apply -f -
 	@if oc get pod -A | grep service-ca-operator > /dev/null 2>&1; then \
@@ -277,7 +278,8 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 	$(OPERATOR_SDK) generate kustomize manifests -q
 	cd config/manager \
 	  && $(KUSTOMIZE) edit set image controller=${IMG} \
-      && $(KUSTOMIZE) edit add patch --kind Deployment --patch "[{\"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/env/1\", \"value\": {\"name\": \"SIDECAR_APP_IMG\", \"value\": \"${SIDECAR_IMG}\"} }]"
+	  && $(KUSTOMIZE) edit set annotation certsuite-operator/sidecar-image:${SIDECAR_IMG}
+
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS) --extra-service-accounts certsuite-cluster-access
 	$(OPERATOR_SDK) bundle validate ./bundle
 
@@ -339,18 +341,47 @@ deploy-samples: kustomize ## Deploy the sample CR, configmap and secret in the c
 
 # Install the operator using OLM subscription. It will create the namespace ${OLM_INSTALL_NAMESPACE}, which
 # is defaulted to "certsuite-operator" if not set, and deploys the CatalogSource, OperatorGroup and
-# and the subscription, using the operator found in the "alpha" channel of the catalog ${OLM_INSTALL_IMG_CATALOG}.
-OLM_INSTALL_IMG_CATALOG ?= quay.io/redhat-best-practices-for-k8s/certsuite-operator-catalog:latest
-OLM_INSTALL_NAMESPACE ?= certsuite-operator
+# and the subscription, using the operator found in the "alpha" channel of the catalog ${OLM_CATALOG}.
+
+OLM_CATALOG_DEFAULT = quay.io/redhat-best-practices-for-k8s/certsuite-operator-catalog:latest
+OLM_CATALOG ?= $(OLM_CATALOG_DEFAULT)
+
+OLM_INSTALL_NAMESPACE_DEFAULT = certsuite-operator
+OLM_INSTALL_NAMESPACE ?= $(OLM_INSTALL_NAMESPACE_DEFAULT)
+
 .PHONY: olm-install
 olm-install: kustomize ## Installs the operator using OLM subscription.
+ifneq ($(OLM_INSTALL_NAMESPACE), $(OLM_INSTALL_NAMESPACE_DEFAULT))
 	cd config/samples/olm \
 	  && $(KUSTOMIZE) edit set namespace $(OLM_INSTALL_NAMESPACE) \
-	  && $(KUSTOMIZE) edit add patch --kind CatalogSource --patch "[{\"op\": \"replace\", \"path\": \"/spec/image\",              \"value\": \"$(OLM_INSTALL_IMG_CATALOG)\" }]" \
-	  && $(KUSTOMIZE) edit add patch --kind Subscription  --patch "[{\"op\": \"replace\", \"path\": \"/spec/sourceNamespace\",    \"value\": \"$(OLM_INSTALL_NAMESPACE)\" }]"   \
+	  && $(KUSTOMIZE) edit add patch --kind Subscription  --patch "[{\"op\": \"replace\", \"path\": \"/spec/sourceNamespace\",    \"value\": \"$(OLM_INSTALL_NAMESPACE)\" }]" \
 	  && $(KUSTOMIZE) edit add patch --kind OperatorGroup --patch "[{\"op\": \"replace\", \"path\": \"/spec/targetNamespaces/0\", \"value\": \"$(OLM_INSTALL_NAMESPACE)\" }]"
+endif
+ifneq ($(OLM_CATALOG), $(OLM_CATALOG_DEFAULT))
+	cd config/samples/olm \
+	  && $(KUSTOMIZE) edit add patch --kind CatalogSource --patch "[{\"op\": \"replace\", \"path\": \"/spec/image\", \"value\": \"$(OLM_CATALOG)\" }]"
+endif
 	$(KUBECTL) kustomize config/samples/olm | $(KUBECTL) apply -f -
 
 .PHONY: olm-uninstall
 olm-uninstall: kustomize ## Uninstall the operator that was installed with "make olm-install"
 	$(KUBECTL) kustomize config/samples/olm | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
+
+
+.PHONY: sidecar-build
+sidecar-build:
+	$(CONTAINER_TOOL) build -t ${SIDECAR_IMG} -f certsuite-sidecar/Dockerfile .
+
+.PHONY: sidecar-push
+sidecar-push:
+	$(CONTAINER_TOOL) push ${SIDECAR_IMG}
+
+.PHONY: release
+release: sidecar-build sidecar-push build docker-build docker-push bundle bundle-build bundle-push catalog-build catalog-push
+	@echo "Release $(VERSION) built and pushed to registry. Images:"
+	@echo "  Controller : $(IMG)"
+	@echo "  Sidecar    : $(SIDECAR_IMG)"
+	@echo "  Bundle     : $(BUNDLE_IMG)"
+	@echo "  Catalog    : $(CATALOG_IMG)"
+	@echo "Type this command to install it with OLM in namespace $(OLM_INSTALL_NAMESPACE)"
+	@echo "  OLM_CATALOG=$(CATALOG_IMG) make olm-install"

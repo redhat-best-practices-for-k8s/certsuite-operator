@@ -61,7 +61,7 @@ git clone https://github.com/redhat-best-practices-for-k8s/certsuite-operator.gi
 1. Export OLM catalog image and namespace:
 
     ```sh
-    export OLM_INSTALL_IMG_CATALOG=<your-registry.com>/<your-repo>/certsuite-operator-catalog:<version>
+    export OLM_CATALOG=<your-registry.com>/<your-repo>/certsuite-operator-catalog:<version>
     export OLM_INSTALL_NAMESPACE=<your-namespace>
     ```
 
@@ -69,8 +69,8 @@ git clone https://github.com/redhat-best-practices-for-k8s/certsuite-operator.gi
     they will be set by default to:
 
     ```sh
-    OLM_INSTALL_IMG_CATALOG = quay.io/redhat-best-practices-for-k8s/certsuite-operator-catalog:latest
-    OLM_INSTALL_NAMESPACE = certsuite-operator
+    OLM_CATALOG=quay.io/redhat-best-practices-for-k8s/certsuite-operator-catalog:latest
+    OLM_INSTALL_NAMESPACE=certsuite-operator
     ```
 
 2. Install Cnf Certification Operator:\

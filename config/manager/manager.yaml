@@ -76,7 +76,10 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: SIDECAR_APP_IMG
-          value: quay.io/redhat-best-practices-for-k8s/certsuite-operator-sidecar:v0.0.1
+          valueFrom:
+            fieldRef:
+              fieldPath:
+                metadata.annotations['certsuite-operator/sidecar-image']
         - name: CONTROLLER_NS
           valueFrom:
             fieldRef:

@@ -6,9 +6,5 @@ images:
 - name: controller
   newName: quay.io/redhat-best-practices-for-k8s/certsuite-operator
   newTag: v0.0.1
-patches:
-- patch: '[{"op": "replace", "path": "/spec/template/spec/containers/0/env/1", "value":
-    {"name": "SIDECAR_APP_IMG", "value": "quay.io/redhat-best-practices-for-k8s/certsuite-operator-sidecar:v0.0.1"}
-    }]'
-  target:
-    kind: Deployment
+commonAnnotations:
+  certsuite-operator/sidecar-image: quay.io/redhat-best-practices-for-k8s/certsuite-operator-sidecar:v0.0.1
