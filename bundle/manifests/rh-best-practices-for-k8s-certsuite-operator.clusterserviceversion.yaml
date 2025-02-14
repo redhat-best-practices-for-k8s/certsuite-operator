@@ -33,7 +33,7 @@ metadata:
     capabilities: Basic Install
     console.openshift.io/plugins: '["certsuite-plugin"]'
     createdAt: "2025-02-11T10:47:20Z"
-    operators.operatorframework.io/builder: operator-sdk-v1.36.1
+    operators.operatorframework.io/builder: operator-sdk-v1.39.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
   name: rh-best-practices-for-k8s-certsuite-operator.v0.0.1
   namespace: placeholder
