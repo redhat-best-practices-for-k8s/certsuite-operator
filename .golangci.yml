@@ -46,7 +46,7 @@ linters:
     - dogsled
     - errcheck
     - exhaustive
-    - exportloopref
+    - copyloopvar
     - funlen
     - goconst
     - gocritic
@@ -85,7 +85,6 @@ linters:
   # - nestif
   # - noctx
   # - prealloc
-  # - exportloopref
   # - structcheck
   # - testpackage
   # - wsl
@@ -111,6 +110,6 @@ issues:
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
 service:
-  golangci-lint-version: 1.63.x # use the fixed version to not introduce new linters unexpectedly
+  golangci-lint-version: 1.64.x # use the fixed version to not introduce new linters unexpectedly
   prepare:
     - echo "here I can run custom commands, but no preparation needed for this repo"

@@ -18,18 +18,18 @@ jobs:
       SHELL: /bin/bash
 
     steps:
-      - name: Set up Go 1.23
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.23.6
-
-      - name: Disable default go problem matcher
-        run: echo "::remove-matcher owner=go::"
-
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Disable default go problem matcher
+        run: echo "::remove-matcher owner=go::"
 
       - name: Extract dependent Pull Requests
         uses: depends-on/depends-on-action@main
@@ -47,7 +47,7 @@ jobs:
       - name: Golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.63
+          version: v1.64
           args: --timeout 10m0s
 
       - name: Checkmake
@@ -92,25 +92,10 @@ jobs:
       - name: Disable default go problem matcher
         run: echo "::remove-matcher owner=go::"
 
-      # Restart docker using /mnt/docker-storage (sdb) instead of /var/lib/docker (sda).
-      - name: Make docker to use /mnt (sdb) for storage
-        run: |
-          df -h
-          lsblk
-          sudo mkdir /mnt/docker-storage
-          sudo jq '.  +={"data-root" : "/mnt/docker-storage"}' < /etc/docker/daemon.json > /tmp/docker-daemon.json
-          sudo cp /tmp/docker-daemon.json /etc/docker/daemon.json
-          cat /etc/docker/daemon.json
-          sudo systemctl restart docker
-          sudo ls -la /mnt/docker-storage
-
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
-
-      - name: Build operator
-        run: ./scripts/ci/build.sh
 
       - name: Removed unused docker images and go cache cleanup
         run: |
@@ -120,51 +105,18 @@ jobs:
           go clean -modcache
           df -h
 
-      # Create a Kind cluster for testing.
-      - name: Check out `certsuite-sample-workload` repo
-        uses: actions/checkout@v4
+      - name: Setup the k8s cluster
+        uses: palmsoftware/quick-k8s@v0.0.20
         with:
-          repository: redhat-best-practices-for-k8s/certsuite-sample-workload
-          path: certsuite-sample-workload
+          disableDefaultCni: true
+          numControlPlaneNodes: 1
+          numWorkerNodes: 3
+          installOLM: true
+          removeDefaultStorageClass: true
+          removeControlPlaneTaint: true
 
-      - name: Bootstrap cluster, docker, and python
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 5
-          max_attempts: 3
-          command: cd ${GITHUB_WORKSPACE}/certsuite-sample-workload; make bootstrap-cluster && make bootstrap-docker-ubuntu-local && make bootstrap-python-ubuntu-local
-
-      # Restart docker using /mnt/docker-storage (sdb) instead of /var/lib/docker (sda).
-      # This step needs to be done right after the sample workload repo's bootstrap scripts, as they
-      # overwrite the docker's daemon.json.
-      - name: Make docker to use /mnt (sdb) for storage
-        run: |
-          df -h
-          lsblk
-          sudo mkdir /mnt/docker-storage || true
-          sudo jq '.  +={"data-root" : "/mnt/docker-storage"}' < /etc/docker/daemon.json > /tmp/docker-daemon.json
-          sudo cp /tmp/docker-daemon.json /etc/docker/daemon.json
-          cat /etc/docker/daemon.json
-          sudo systemctl restart docker
-          sudo ls -la /mnt/docker-storage
-
-      - name: Run 'make rebuild-cluster'
-        uses: nick-fields/retry@v3
-        env:
-          SKIP_PRELOAD_IMAGES: true
-        with:
-          timeout_minutes: 15
-          max_attempts: 3
-          command: cd ${GITHUB_WORKSPACE}/certsuite-sample-workload; make rebuild-cluster
-
-      - name: Run 'make install'
-        uses: nick-fields/retry@v3
-        env:
-          SKIP_PRELOAD_IMAGES: true
-        with:
-          timeout_minutes: 20
-          max_attempts: 3
-          command: cd ${GITHUB_WORKSPACE}/certsuite-sample-workload; make install
+      - name: Build operator
+        run: ./scripts/ci/build.sh
 
       - name: Install cert-manager to cluster
         run: |
