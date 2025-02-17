@@ -6,6 +6,22 @@ metadata:
       [
         {
           "apiVersion": "best-practices-for-k8s.openshift.io/v1alpha1",
+          "kind": "CertsuiteConsolePlugin",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "certsuite-operator",
+              "app.kubernetes.io/instance": "certsuiteconsoleplugin-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "certsuiteconsoleplugin",
+              "app.kubernetes.io/part-of": "certsuite-operator"
+            },
+            "name": "certsuiteconsoleplugin-sample",
+            "namespace": "certsuite-operator"
+          },
+          "spec": null
+        },
+        {
+          "apiVersion": "best-practices-for-k8s.openshift.io/v1alpha1",
           "kind": "CertsuiteRun",
           "metadata": {
             "labels": {
@@ -32,15 +48,21 @@ metadata:
       ]
     capabilities: Basic Install
     console.openshift.io/plugins: '["certsuite-plugin"]'
-    createdAt: "2025-02-11T10:47:20Z"
+    createdAt: "2025-02-17T15:03:20Z"
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
-  name: rh-best-practices-for-k8s-certsuite-operator.v0.0.1
+  name: rh-best-practices-for-k8s-certsuite-operator.v2.0.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - description: CertsuiteConsolePlugin is the Schema for the certsuiteconsoleplugins
+        API
+      displayName: Certsuite Console Plugin
+      kind: CertsuiteConsolePlugin
+      name: certsuiteconsoleplugins.best-practices-for-k8s.openshift.io
+      version: v1alpha1
     - description: CertsuiteRun is the Schema for the certsuiteruns API
       displayName: Certsuite Run
       kind: CertsuiteRun
@@ -68,6 +90,32 @@ spec:
           - '*'
         serviceAccountName: certsuite-cluster-access
       - rules:
+        - apiGroups:
+          - best-practices-for-k8s.openshift.io
+          resources:
+          - certsuiteconsoleplugins
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - best-practices-for-k8s.openshift.io
+          resources:
+          - certsuiteconsoleplugins/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - best-practices-for-k8s.openshift.io
+          resources:
+          - certsuiteconsoleplugins/status
+          verbs:
+          - get
+          - patch
+          - update
         - apiGroups:
           - console.openshift.io
           resources:
@@ -107,6 +155,7 @@ spec:
           template:
             metadata:
               annotations:
+                certsuite-operator/sidecar-image: quay.io/rh_ee_shmoran/certsuite-operator:v2.0.0-sidecar
                 kubectl.kubernetes.io/default-container: manager
               labels:
                 control-plane: controller-manager
@@ -123,12 +172,14 @@ spec:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
                 - name: SIDECAR_APP_IMG
-                  value: quay.io/redhat-best-practices-for-k8s/certsuite-operator-sidecar:v0.0.1
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['certsuite-operator/sidecar-image']
                 - name: CONTROLLER_NS
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-                image: quay.io/redhat-best-practices-for-k8s/certsuite-operator:v0.0.1
+                image: quay.io/rh_ee_shmoran/certsuite-operator:v2.0.0-controller
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   httpGet:
@@ -307,8 +358,28 @@ spec:
   maturity: alpha
   provider:
     name: Red Hat
-  version: 0.0.1
+  version: 2.0.0
   webhookdefinitions:
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: certsuite-controller-manager
+    failurePolicy: Fail
+    generateName: vcertsuiteconsoleplugin.kb.io
+    rules:
+    - apiGroups:
+      - best-practices-for-k8s.openshift.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - certsuiteconsoleplugins
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-best-practices-for-k8s-openshift-io-v1alpha1-certsuiteconsoleplugin
   - admissionReviewVersions:
     - v1
     containerPort: 443

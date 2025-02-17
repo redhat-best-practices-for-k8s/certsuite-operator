@@ -5,6 +5,32 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - best-practices-for-k8s.openshift.io
+  resources:
+  - certsuiteconsoleplugins
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - best-practices-for-k8s.openshift.io
+  resources:
+  - certsuiteconsoleplugins/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - best-practices-for-k8s.openshift.io
+  resources:
+  - certsuiteconsoleplugins/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - console.openshift.io
   resources:
   - consoleplugins

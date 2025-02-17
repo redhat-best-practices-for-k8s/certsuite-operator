@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: certsuite-operator-plugin
-          image: quay.io/redhat-best-practices-for-k8s/certsuite-operator-plugin:v0.0.1
+          image: quay.io/redhat-best-practices-for-k8s/certsuite-operator-plugin:v0.0.2
           ports:
             - containerPort: 9001
               protocol: TCP
