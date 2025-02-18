@@ -132,8 +132,8 @@ golangci-lint:
 	}
 
 .PHONY: lint
-lint: golangci-lint ## Run golangci-lint linter & yamllint
-	$(GOLANGCI_LINT) run --timeout 10m0s
+lint: golangci-lint ## Run all linters
+	$(GOLANGCI_LINT) config verify && $(GOLANGCI_LINT) run --timeout 10m0s
 	checkmake --config=.checkmake Makefile
 	hadolint Dockerfile
 	# shfmt -d *.sh script
