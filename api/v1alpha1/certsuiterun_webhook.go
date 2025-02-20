@@ -49,6 +49,7 @@ func (r *CertsuiteRun) SetupWebhookWithManager(mgr ctrl.Manager) error {
 
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
+		WithValidator(r).
 		Complete()
 }
 
@@ -58,10 +59,11 @@ func (r *CertsuiteRun) SetupWebhookWithManager(mgr ctrl.Manager) error {
 //nolint:lll
 //+kubebuilder:webhook:path=/validate-best-practices-for-k8s-openshift-io-v1alpha1-certsuiterun,mutating=false,failurePolicy=fail,sideEffects=None,groups=best-practices-for-k8s.openshift.io,resources=certsuiteruns,verbs=create;update,versions=v1alpha1,name=vcertsuiterun.kb.io,admissionReviewVersions=v1
 
-var _ webhook.Validator = &CertsuiteRun{}
+var _ webhook.CustomValidator = &CertsuiteRun{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *CertsuiteRun) ValidateCreate() (admission.Warnings, error) {
+func (r *CertsuiteRun) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	r = obj.(*CertsuiteRun)
 	logger.Info("validate create", "name", r.Name)
 
 	err := r.validateConfigMap()
@@ -156,9 +158,10 @@ func (r *CertsuiteRun) validateLogLevel() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-//
-//nolint:revive
-func (r *CertsuiteRun) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
+func (r *CertsuiteRun) ValidateUpdate(_ context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
+	_ = oldObj
+
+	r = newObj.(*CertsuiteRun)
 	logger.Info("validate update", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object update.
@@ -166,7 +169,8 @@ func (r *CertsuiteRun) ValidateUpdate(old runtime.Object) (admission.Warnings, e
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *CertsuiteRun) ValidateDelete() (admission.Warnings, error) {
+func (r *CertsuiteRun) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	r = obj.(*CertsuiteRun)
 	logger.Info("validate delete", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object deletion.
