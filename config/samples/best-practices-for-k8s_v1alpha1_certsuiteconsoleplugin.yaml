@@ -1,0 +1,13 @@
+apiVersion: best-practices-for-k8s.openshift.io/v1alpha1
+kind: CertsuiteConsolePlugin
+metadata:
+  labels:
+    app.kubernetes.io/name: certsuiteconsoleplugin
+    app.kubernetes.io/instance: certsuiteconsoleplugin-sample
+    app.kubernetes.io/part-of: certsuite-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: certsuite-operator
+  name: certsuiteconsoleplugin-sample
+  namespace: certsuite-operator
+spec:
+  # TODO(user): Add fields here

@@ -11,6 +11,12 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - description: CertsuiteConsolePlugin is the Schema for the certsuiteconsoleplugins
+        API
+      displayName: Certsuite Console Plugin
+      kind: CertsuiteConsolePlugin
+      name: certsuiteconsoleplugins.best-practices-for-k8s.openshift.io
+      version: v1alpha1
     - description: CertsuiteRun is the Schema for the certsuiteruns API
       displayName: Certsuite Run
       kind: CertsuiteRun

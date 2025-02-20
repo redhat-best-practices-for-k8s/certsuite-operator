@@ -3,18 +3,23 @@
 # It should be run by config/default
 resources:
 - bases/best-practices-for-k8s.openshift.io_certsuiteruns.yaml
+- bases/best-practices-for-k8s.openshift.io_certsuiteconsoleplugins.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix.
 # patches here are for enabling the conversion webhook for each CRD
 patches:
 - path: patches/webhook_in_certsuiteruns.yaml
+- path: patches/cainjection_in_certsuiteruns.yaml
 #- path: patches/cainjection_in_certsuiteruns.yaml
+- path: patches/webhook_in_certsuiteconsoleplugins.yaml
+- path: patches/cainjection_in_certsuiteconsoleplugins.yaml
 #+kubebuilder:scaffold:crdkustomizewebhookpatch
 
 # [CERTMANAGER] To enable cert-manager, uncomment all the sections with [CERTMANAGER] prefix.
 # patches here are for enabling the CA injection for each CRD
 #- path: patches/cainjection_in_certsuiteruns.yaml
+#- path: patches/cainjection_in_certsuiteconsoleplugins.yaml
 #+kubebuilder:scaffold:crdkustomizecainjectionpatch
 
 # [WEBHOOK] To enable webhook, uncomment the following section

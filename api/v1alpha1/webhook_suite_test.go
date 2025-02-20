@@ -116,6 +116,9 @@ var _ = BeforeSuite(func() {
 	err = (&CertsuiteRun{}).SetupWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = (&CertsuiteConsolePlugin{}).SetupWebhookWithManager(mgr)
+	Expect(err).NotTo(HaveOccurred())
+
 	//+kubebuilder:scaffold:webhook
 
 	go func() {

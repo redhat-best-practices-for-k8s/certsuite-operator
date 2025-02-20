@@ -37,9 +37,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	consolev1 "github.com/openshift/api/console/v1"
-	cnfcertificationsv1alpha1 "github.com/redhat-best-practices-for-k8s/certsuite-operator/api/v1alpha1"
-	"github.com/redhat-best-practices-for-k8s/certsuite-operator/internal/controller"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
+
+	bestpracticesfork8sv1alpha1 "github.com/redhat-best-practices-for-k8s/certsuite-operator/api/v1alpha1"
+	"github.com/redhat-best-practices-for-k8s/certsuite-operator/internal/controller"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -51,7 +52,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(cnfcertificationsv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(bestpracticesfork8sv1alpha1.AddToScheme(scheme))
 
 	utilruntime.Must(consolev1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
@@ -172,22 +173,31 @@ func main() {
 		os.Exit(1)
 	}
 
-	r := &controller.CertsuiteRunReconciler{
+	if err := (&controller.CertsuiteRunReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
-	}
-	if err = r.SetupWithManager(mgr); err != nil {
+	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CertsuiteRun")
 		os.Exit(1)
 	}
 
-	if err := r.HandleConsolePlugin(); err != nil {
-		setupLog.Error(err, "error has occurred while handling console plugin")
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" { //nolint:goconst
+		if err = (&bestpracticesfork8sv1alpha1.CertsuiteRun{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "CertsuiteRun")
+			os.Exit(1)
+		}
+	}
+
+	if err := (&controller.CertsuiteConsolePluginReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "CertsuiteConsolePlugin")
 		os.Exit(1)
 	}
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
-		if err = (&cnfcertificationsv1alpha1.CertsuiteRun{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "CertsuiteRun")
+		if err = (&bestpracticesfork8sv1alpha1.CertsuiteConsolePlugin{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "CertsuiteConsolePlugin")
 			os.Exit(1)
 		}
 	}

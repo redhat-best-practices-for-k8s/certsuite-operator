@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -30,7 +29,6 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -41,7 +39,6 @@ import (
 	cnfcertjob "github.com/redhat-best-practices-for-k8s/certsuite-operator/internal/controller/cnf-cert-job"
 	"github.com/redhat-best-practices-for-k8s/certsuite-operator/internal/controller/definitions"
 	controllerlogger "github.com/redhat-best-practices-for-k8s/certsuite-operator/internal/controller/logger"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 var sideCarImage string
@@ -80,7 +77,7 @@ const (
 // +kubebuilder:rbac:groups="console.openshift.io",resources=consoleplugins,verbs=create;delete
 // +kubebuilder:rbac:groups="apps",namespace=certsuite-operator,resources=deployments,verbs=create;get;list;watch;delete
 
-func ignoreUpdatePredicate() predicate.Predicate {
+func ignoreUpdateInCertsuiteRun() predicate.Predicate {
 	return predicate.Funcs{
 		UpdateFunc: func(_ event.UpdateEvent) bool {
 			// Ignore updates to CR
@@ -302,98 +299,6 @@ func (r *CertsuiteRunReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	return ctrl.Result{RequeueAfter: checkInterval}, nil
 }
 
-func (r *CertsuiteRunReconciler) generateSinglePluginResourceObj(filePath, ns string, decoder runtime.Decoder) (client.Object, error) {
-	yamlFile, err := os.ReadFile(filePath)
-	if err != nil {
-		logger.Errorf("failed to read plugin resource file: %s, err: %v", filePath, err)
-		return nil, err
-	}
-
-	obj, _, err := decoder.Decode(yamlFile, nil, nil)
-	if err != nil {
-		logger.Errorf("failed to decode plugin resources yaml file, err: %v", err)
-		return nil, err
-	}
-
-	clientObj := obj.(client.Object)
-	clientObj.SetNamespace(ns)
-	return clientObj, nil
-}
-
-func (r *CertsuiteRunReconciler) generatePluginResourcesObjs() ([]client.Object, error) {
-	var pluginDir = "/plugin"
-
-	// Read all  plugin's resources (written in yaml files)
-	yamlFiles, err := os.ReadDir(pluginDir)
-	if err != nil {
-		logger.Errorf("failed to read plugin resources directory, err: %v", err)
-		return nil, err
-	}
-
-	// Get controller's ns to set plugin in same ns
-	controllerNS, found := os.LookupEnv(definitions.ControllerNamespaceEnvVar)
-	if !found {
-		return nil, fmt.Errorf("controller ns env var %q not found", definitions.ControllerNamespaceEnvVar)
-	}
-
-	// Iterate over all plugin's resources
-	pluginObjList := []client.Object{}
-	decoder := serializer.NewCodecFactory(r.Scheme).UniversalDeserializer()
-	for _, file := range yamlFiles {
-		yamlfilepath := filepath.Join(pluginDir, file.Name())
-		obj, err := r.generateSinglePluginResourceObj(yamlfilepath, controllerNS, decoder)
-		if err != nil {
-			return nil, err
-		}
-		pluginObjList = append(pluginObjList, obj)
-	}
-	return pluginObjList, nil
-}
-
-func (r *CertsuiteRunReconciler) ApplyOperationOnPluginResources(op func(obj client.Object) error) error {
-	// Generate plugin resources as objects
-	pluginObjsList, err := r.generatePluginResourcesObjs()
-	if err != nil {
-		return fmt.Errorf("failed to generate plugin resources: %v", err)
-	}
-
-	// Apply given operation on plugin resources
-	for _, obj := range pluginObjsList {
-		err = op(obj)
-		if err != nil {
-			logger.Errorf("failed to apply operation on plugin resource, err: %v", err)
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (r *CertsuiteRunReconciler) HandleConsolePlugin() error {
-	// Create console plugin resources
-	err := r.ApplyOperationOnPluginResources(func(obj client.Object) error {
-		logger.Info("Creating console plugin resource", "namespace", obj.GetNamespace(), "name", obj.GetName(), "kind", obj.GetObjectKind().GroupVersionKind().Kind)
-		err := r.Create(context.Background(), obj)
-		if err != nil {
-			if k8serrors.IsAlreadyExists(err) {
-				logger.Info("Openshift Console plugin resource already exists", "namespace", obj.GetNamespace(), "name", obj.GetName(), "kind", obj.GetObjectKind().GroupVersionKind().Kind)
-			} else {
-				return err
-			}
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return fmt.Errorf("failed to create plugin, err: %v", err)
-	}
-
-	logger.Info("Operator's console plugin was installed successfully.")
-
-	return nil
-}
-
 // SetupWithManager sets up the controller with the Manager.
 func (r *CertsuiteRunReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	logger.Info("Setting up CertsuiteRunReconciler's manager.")
@@ -406,6 +311,6 @@ func (r *CertsuiteRunReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cnfcertificationsv1alpha1.CertsuiteRun{}).
-		WithEventFilter(ignoreUpdatePredicate()).
+		WithEventFilter(ignoreUpdateInCertsuiteRun()).
 		Complete(r)
 }
