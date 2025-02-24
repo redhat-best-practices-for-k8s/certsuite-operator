@@ -39,6 +39,7 @@ func (r *CertsuiteConsolePlugin) SetupWebhookWithManager(mgr ctrl.Manager) error
 
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
+		WithValidator(r).
 		Complete()
 }
 
@@ -50,10 +51,10 @@ func (r *CertsuiteConsolePlugin) SetupWebhookWithManager(mgr ctrl.Manager) error
 //nolint:lll
 //+kubebuilder:webhook:path=/validate-best-practices-for-k8s-openshift-io-v1alpha1-certsuiteconsoleplugin,mutating=false,failurePolicy=fail,sideEffects=None,groups=best-practices-for-k8s.openshift.io,resources=certsuiteconsoleplugins,verbs=create;update,versions=v1alpha1,name=vcertsuiteconsoleplugin.kb.io,admissionReviewVersions=v1
 
-var _ webhook.Validator = &CertsuiteConsolePlugin{}
+var _ webhook.CustomValidator = &CertsuiteConsolePlugin{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *CertsuiteConsolePlugin) ValidateCreate() (admission.Warnings, error) {
+func (r *CertsuiteConsolePlugin) ValidateCreate(_ context.Context, _ runtime.Object) (admission.Warnings, error) {
 	certsuiteconsolepluginlog.Info("validate create", "name", r.Name)
 
 	var consolePluginCRList CertsuiteConsolePluginList
@@ -71,9 +72,10 @@ func (r *CertsuiteConsolePlugin) ValidateCreate() (admission.Warnings, error) {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-//
-//nolint:revive
-func (r *CertsuiteConsolePlugin) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
+func (r *CertsuiteConsolePlugin) ValidateUpdate(_ context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
+	_ = oldObj
+
+	r = newObj.(*CertsuiteConsolePlugin)
 	certsuiteconsolepluginlog.Info("validate update", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object update.
@@ -81,7 +83,8 @@ func (r *CertsuiteConsolePlugin) ValidateUpdate(old runtime.Object) (admission.W
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *CertsuiteConsolePlugin) ValidateDelete() (admission.Warnings, error) {
+func (r *CertsuiteConsolePlugin) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	r = obj.(*CertsuiteConsolePlugin)
 	certsuiteconsolepluginlog.Info("validate delete", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object deletion.

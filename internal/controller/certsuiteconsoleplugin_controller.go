@@ -52,7 +52,7 @@ const (
 )
 
 func ignoreUpdateInCertsuiteConsolePlugin() predicate.Predicate {
-	return predicate.Funcs{  
+	return predicate.Funcs{
 		UpdateFunc: func(_ event.UpdateEvent) bool {
 			// Ignore updates to CR
 			return false
@@ -120,9 +120,9 @@ func (r *CertsuiteConsolePluginReconciler) createConsolePluginResources(consoleP
 		objKind := obj.GetObjectKind().GroupVersionKind().Kind
 
 		condition := metav1.Condition{
-			Type:   resourceCreationConditionType,
-			Status: metav1.ConditionTrue,
-			Reason: resourceSucceededConditionReason,
+			Type:    resourceCreationConditionType,
+			Status:  metav1.ConditionTrue,
+			Reason:  resourceSucceededConditionReason,
 			Message: fmt.Sprintf("%s (name: %s ns: %s) has been created successfully.", objKind, objName, objNamespace),
 		}
 
@@ -132,11 +132,11 @@ func (r *CertsuiteConsolePluginReconciler) createConsolePluginResources(consoleP
 			condition.Status = metav1.ConditionFalse
 			if k8serrors.IsAlreadyExists(err) {
 				pluginLogger.Info("Openshift Console plugin resource already exists", "namespace", objNamespace, "name", objName, "kind", objKind)
-				condition.Reason = fmt.Sprintf("ResourceAlreadyExists")
+				condition.Reason = "ResourceAlreadyExists"
 				condition.Message = fmt.Sprintf("%s (name: %s ns: %s): %v already exists", objKind, objName, objNamespace, err)
 			} else {
 				pluginLogger.Error("Failed to create Openshift Console plugin resource", "namespace", objNamespace, "name", objName, "kind", objKind)
-				condition.Reason = fmt.Sprintf("ResourceCreationFailed")
+				condition.Reason = "ResourceCreationFailed"
 				condition.Message = fmt.Sprintf("failed to create %s (name: %s ns: %s): %v", objKind, objName, objNamespace, err)
 			}
 		}
@@ -147,7 +147,6 @@ func (r *CertsuiteConsolePluginReconciler) createConsolePluginResources(consoleP
 		if err := r.Status().Update(context.TODO(), consolePluginCR); err != nil {
 			return fmt.Errorf("failed to update console plugin CR's status conditions: %v", err)
 		}
-
 	}
 
 	return nil
