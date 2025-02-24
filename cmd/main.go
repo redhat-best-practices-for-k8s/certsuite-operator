@@ -49,6 +49,8 @@ var (
 	setupLog = ctrl.Log.WithName("setup")
 )
 
+const enableWebhooksFalse = "false"
+
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
@@ -181,7 +183,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if os.Getenv("ENABLE_WEBHOOKS") != "false" { //nolint:goconst
+	if os.Getenv("ENABLE_WEBHOOKS") != enableWebhooksFalse {
 		if err = (&bestpracticesfork8sv1alpha1.CertsuiteRun{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "CertsuiteRun")
 			os.Exit(1)
@@ -195,7 +197,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "CertsuiteConsolePlugin")
 		os.Exit(1)
 	}
-	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+	if os.Getenv("ENABLE_WEBHOOKS") != enableWebhooksFalse {
 		if err = (&bestpracticesfork8sv1alpha1.CertsuiteConsolePlugin{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "CertsuiteConsolePlugin")
 			os.Exit(1)
