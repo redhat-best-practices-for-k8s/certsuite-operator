@@ -77,4 +77,4 @@ echo "${BUNDLE_IMG}"
 echo "${CATALOG_IMG}"
 echo
 echo "Use this command to deploy the operator through an OLM subscription:"
-echo "  OLM_INSTALL_IMG_CATALOG=${CATALOG_IMG} make olm-install"
+echo "  OLM_CATALOG=${CATALOG_IMG} make olm-install"
