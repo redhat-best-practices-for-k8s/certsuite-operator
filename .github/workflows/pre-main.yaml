@@ -124,7 +124,7 @@ jobs:
       
       - name: Install consoleplugin CRD to cluster
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/openshift/api/master/console/v1/zz_generated.crd-manifests/90_consoleplugins-Default.crd.yaml
+          kubectl apply -f https://raw.githubusercontent.com/openshift/api/017e9dd0276e4ed0242a759dffd419d728337876/console/v1/zz_generated.crd-manifests/90_consoleplugins.crd.yaml
 
       - name: More cleanup
         run: |
