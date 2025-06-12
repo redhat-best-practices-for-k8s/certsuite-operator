@@ -62,7 +62,7 @@ jobs:
       #   run: shfmt -d *.sh script
 
       - name: Markdownlint
-        uses: nosborn/github-action-markdown-cli@v3.4.0
+        uses: nosborn/github-action-markdown-cli@v3.5.0
         with:
           files: .
 
@@ -105,7 +105,7 @@ jobs:
           df -h
 
       - name: Setup the k8s cluster
-        uses: palmsoftware/quick-k8s@v0.0.28
+        uses: palmsoftware/quick-k8s@v0.0.33
         with:
           disableDefaultCni: true
           numControlPlaneNodes: 1
