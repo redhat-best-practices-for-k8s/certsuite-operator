@@ -23,6 +23,11 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
       - name: Removed unused docker images and go cache cleanup
         run: |
           df -h
