@@ -31,7 +31,12 @@ checkStatusPhase() {
     endtime=$(date -ud "$runtime" +%s)
 
     while [[ $(date -u +%s) -le $endtime ]]; do
-        actual_phase=$(oc get certsuiteruns -n certsuite-operator certsuiterun-sample -o json | jq -r '.status.phase')
+        # Show the pods and the certsuiterun CR in the operator namespace
+        oc get pods -n ${CNF_CERTSUITE_OPERATOR_NAMESPACE} -o wide
+        oc get certsuiterun -n "${CNF_CERTSUITE_OPERATOR_NAMESPACE}"
+
+        # Get and check the phase of the certsuiterun CR
+        actual_phase=$(oc get certsuiteruns -n ${CNF_CERTSUITE_OPERATOR_NAMESPACE} certsuiterun-sample -o json | jq -r '.status.phase')
         if [ "$actual_phase" == "$expected_phase" ]; then
             echo "Phase ${expected_phase} found!"
             return 0
