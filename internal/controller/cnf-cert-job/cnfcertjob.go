@@ -80,7 +80,7 @@ func newInitialJobPod() *corev1.Pod {
 					Args: []string{"run", "--output-dir", definitions.CnfCertSuiteResultsFolder,
 						"--config-file", definitions.CnfCertSuiteConfigFilePath,
 						"--preflight-dockerconfig", definitions.PreflightDockerConfigFilePath,
-						"--non-intrusive", "true",
+						"--intrusive", "false",
 					},
 					ImagePullPolicy: "Always",
 					VolumeMounts: []corev1.VolumeMount{
