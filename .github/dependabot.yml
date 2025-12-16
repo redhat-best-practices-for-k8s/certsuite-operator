@@ -5,11 +5,36 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      k8s-dependencies:
+        patterns:
+          - "k8s.io/*"
+          - "sigs.k8s.io/*"
+      testing-dependencies:
+        patterns:
+          - "github.com/onsi/*"
+          - "github.com/stretchr/testify"
+      go-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "k8s.io/*"
+          - "sigs.k8s.io/*"
+          - "github.com/onsi/*"
+          - "github.com/stretchr/testify"
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: daily
+    groups:
+      github-actions:
+        patterns:
+          - "*"
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: weekly
+    groups:
+      docker-dependencies:
+        patterns:
+          - "*"
