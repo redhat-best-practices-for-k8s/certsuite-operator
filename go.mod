@@ -1,6 +1,6 @@
 module github.com/redhat-best-practices-for-k8s/certsuite-operator
 
-go 1.25.5
+go 1.25.6
 
 require (
 	github.com/go-logr/logr v1.4.3
