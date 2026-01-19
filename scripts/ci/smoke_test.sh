@@ -65,10 +65,10 @@ echo "$crJson" | jq
 
 # Run checks for verdict and counters.
 export EXPECTED_VERDICT=${EXPECTED_VERDICT:-"pass"}
-export EXPECTED_TOTAL_TCS=${EXPECTED_TOTAL_TCS:-"101"}
+export EXPECTED_TOTAL_TCS=${EXPECTED_TOTAL_TCS:-"102"}
 export EXPECTED_FAILED=${EXPECTED_FAILED:-"0"}
 export EXPECTED_PASSED=${EXPECTED_PASSED:-"1"}
-export EXPECTED_SKIPPED=${EXPECTED_SKIPPED:-"100"}
+export EXPECTED_SKIPPED=${EXPECTED_SKIPPED:-"101"}
 
 # Check the verdit is pass
 echo "$crJson" | jq 'if .status.report.verdict == env.EXPECTED_VERDICT then "verdict is "+env.EXPECTED_VERDICT else error("verdict mismatch: \(.status.report.verdict), expected "+env.EXPECTED_VERDICT) end'
