@@ -5,6 +5,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # controller-runtime 0.22.2+ has breaking webhook API changes
+      # Remove this ignore after updating webhook code to new generic API
+      - dependency-name: "sigs.k8s.io/controller-runtime"
+        versions: [">=0.22.2"]
     groups:
       k8s-dependencies:
         patterns:
