@@ -105,12 +105,13 @@ jobs:
           df -h
 
       - name: Setup the k8s cluster
-        uses: palmsoftware/quick-k8s@v0.0.47
+        uses: palmsoftware/quick-k8s@v0.0.48
         with:
           disableDefaultCni: true
           numControlPlaneNodes: 1
           numWorkerNodes: 3
           installOLM: true
+          installCertManager: true
           removeDefaultStorageClass: true
           removeControlPlaneTaint: true
 
@@ -121,11 +122,6 @@ jobs:
 
       - name: Build operator
         run: ./scripts/ci/build.sh
-
-      - name: Install cert-manager to cluster
-        run: |
-          kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.yaml
-          kubectl wait --for=condition=ready pod --all=true -n cert-manager --timeout=5m
 
       - name: Install consoleplugin CRD to cluster
         run: |
