@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents when working with code in this repository.
 
 ## Repository Overview
 
@@ -151,13 +151,13 @@ certsuite-operator/
 
 ### Direct Dependencies
 - `sigs.k8s.io/controller-runtime` v0.22.1 - Controller framework
-- `k8s.io/client-go` v0.34.1 - Kubernetes client
-- `k8s.io/api` v0.34.1 - Kubernetes API types
-- `k8s.io/apimachinery` v0.34.2 - API machinery utilities
+- `k8s.io/client-go` v0.35.1 - Kubernetes client
+- `k8s.io/api` v0.35.1 - Kubernetes API types
+- `k8s.io/apimachinery` v0.35.1 - API machinery utilities
 - `github.com/openshift/api` - OpenShift API types (for console plugin)
-- `github.com/onsi/ginkgo/v2` v2.27.3 - BDD testing framework
-- `github.com/onsi/gomega` v1.38.2 - Matcher library
-- `github.com/sirupsen/logrus` v1.9.3 - Logging (sidecar)
+- `github.com/onsi/ginkgo/v2` v2.28.1 - BDD testing framework
+- `github.com/onsi/gomega` v1.39.1 - Matcher library
+- `github.com/sirupsen/logrus` v1.9.4 - Logging (sidecar)
 - `github.com/go-logr/logr` v1.4.3 - Structured logging interface
 
 ### Tool Dependencies
@@ -169,7 +169,7 @@ certsuite-operator/
 ## Development Guidelines
 
 ### Go Version
-This project uses Go 1.25.5.
+This project uses Go 1.26.0.
 
 ### Testing Framework
 Tests use Ginkgo/Gomega BDD framework with envtest for controller tests.
