@@ -169,7 +169,7 @@ certsuite-operator/
 ## Development Guidelines
 
 ### Go Version
-This project uses Go 1.26.0.
+This project uses Go 1.26.1.
 
 ### Testing Framework
 Tests use Ginkgo/Gomega BDD framework with envtest for controller tests.
