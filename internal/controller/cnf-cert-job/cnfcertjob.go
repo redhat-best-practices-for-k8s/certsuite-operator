@@ -17,6 +17,10 @@ const (
 	clusterAccessServiceAccountName = "certsuite-cluster-access"
 
 	certsuiteContainerImage = "quay.io/redhat-best-practices-for-k8s/certsuite:unstable"
+
+	volumeNameOutput              = "certsuite-output"
+	volumeNameConfig              = "certsuite-config"
+	volumeNamePreflightDockerconf = "certsuite-preflight-dockerconfig"
 )
 
 func New(options ...func(*corev1.Pod) error) (*corev1.Pod, error) {
@@ -67,7 +71,7 @@ func newInitialJobPod() *corev1.Pod {
 					ImagePullPolicy: "IfNotPresent",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      "certsuite-output",
+							Name:      volumeNameOutput,
 							ReadOnly:  true,
 							MountPath: definitions.CnfCertSuiteResultsFolder,
 						},
@@ -85,11 +89,11 @@ func newInitialJobPod() *corev1.Pod {
 					ImagePullPolicy: "Always",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      "certsuite-output",
+							Name:      volumeNameOutput,
 							MountPath: definitions.CnfCertSuiteResultsFolder,
 						},
 						{
-							Name:      "certsuite-config",
+							Name:      volumeNameConfig,
 							ReadOnly:  true,
 							MountPath: definitions.CnfCnfCertSuiteConfigFolder,
 						},
@@ -98,7 +102,7 @@ func newInitialJobPod() *corev1.Pod {
 			},
 			Volumes: []corev1.Volume{
 				{
-					Name: "certsuite-output",
+					Name: volumeNameOutput,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
@@ -171,7 +175,7 @@ func WithTimeOut(timeout string) func(*corev1.Pod) error {
 func WithConfigMap(configMapName string) func(*corev1.Pod) error {
 	return func(p *corev1.Pod) error {
 		Volume := corev1.Volume{
-			Name: "certsuite-config",
+			Name: volumeNameConfig,
 			VolumeSource: corev1.VolumeSource{
 				ConfigMap: &corev1.ConfigMapVolumeSource{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -192,7 +196,7 @@ func WithPreflightSecret(preflightSecretName *string) func(*corev1.Pod) error {
 		}
 
 		Volume := corev1.Volume{
-			Name: "certsuite-preflight-dockerconfig",
+			Name: volumeNamePreflightDockerconf,
 			VolumeSource: corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
 					SecretName: *preflightSecretName,
@@ -203,7 +207,7 @@ func WithPreflightSecret(preflightSecretName *string) func(*corev1.Pod) error {
 
 		cnfCertCuiteContainer := getCnfCertSuiteContainer(p)
 		volumeMount := corev1.VolumeMount{
-			Name:      "certsuite-preflight-dockerconfig",
+			Name:      volumeNamePreflightDockerconf,
 			ReadOnly:  true,
 			MountPath: definitions.CnfPreflightConfigFolder,
 		}
