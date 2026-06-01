@@ -2,7 +2,7 @@ module github.com/redhat-best-practices-for-k8s/certsuite-operator
 
 go 1.26
 
-toolchain go1.26.2
+toolchain go1.26.3
 
 require (
 	github.com/go-logr/logr v1.4.3
