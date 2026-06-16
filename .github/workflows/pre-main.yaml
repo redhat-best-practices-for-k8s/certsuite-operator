@@ -32,11 +32,6 @@ jobs:
       - name: Disable default go problem matcher
         run: echo "::remove-matcher owner=go::"
 
-      - name: Extract dependent Pull Requests
-        uses: depends-on/depends-on-action@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Install checkmake
         run: |
           curl --location --output $CM_BIN --silent $CM_URL_LINUX
