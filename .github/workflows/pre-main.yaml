@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
 
@@ -89,7 +89,7 @@ jobs:
         run: echo "::remove-matcher owner=go::"
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
 
@@ -102,7 +102,7 @@ jobs:
           df -h
 
       - name: Setup the k8s cluster
-        uses: palmsoftware/quick-k8s@v0.0.68
+        uses: palmsoftware/quick-k8s@v0.0.72
         with:
           disableDefaultCni: true
           numControlPlaneNodes: 1
