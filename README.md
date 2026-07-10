@@ -6,7 +6,7 @@
 ## Description
 
 Kubernetes/Openshift Operator (scaffolded with operator-sdk) running the
-[Certification Suite Container](https://github.com/redhat-best-practices-for-k8s/certsuite-operator).
+[Certification Suite Container](https://github.com/redhat-best-practices-for-k8s/certsuite).
 
 The Certification Suites provide a set of test cases for the
 Containerized Network Functions/Cloud Native Functions (CNFs) to verify if
