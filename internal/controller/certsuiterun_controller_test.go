@@ -9,6 +9,8 @@ import (
 	cnfcertificationsv1alpha1 "github.com/redhat-best-practices-for-k8s/certsuite-operator/api/v1alpha1"
 	"github.com/redhat-best-practices-for-k8s/certsuite-operator/internal/controller/definitions"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -25,6 +27,65 @@ func mockReconciler(objs []runtime.Object) *CertsuiteRunReconciler {
 	cl := fake.NewClientBuilder().WithRuntimeObjects(objs...).WithStatusSubresource(runCR).Build()
 
 	return &CertsuiteRunReconciler{Client: cl, Scheme: s}
+}
+
+func Test_getContainerStatus(t *testing.T) {
+	tests := []struct {
+		name          string
+		pod           *corev1.Pod
+		containerName string
+		wantNil       bool
+	}{
+		{
+			name: "found container",
+			pod: &corev1.Pod{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{Name: "sidecar"},
+						{Name: definitions.CnfCertSuiteContainerName},
+					},
+				},
+				Status: corev1.PodStatus{
+					ContainerStatuses: []corev1.ContainerStatus{
+						{Name: "sidecar", Ready: true},
+						{Name: definitions.CnfCertSuiteContainerName, Ready: false},
+					},
+				},
+			},
+			containerName: definitions.CnfCertSuiteContainerName,
+			wantNil:       false,
+		},
+		{
+			name: "container not found",
+			pod: &corev1.Pod{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{Name: "other"}},
+				},
+				Status: corev1.PodStatus{
+					ContainerStatuses: []corev1.ContainerStatus{{Name: "other"}},
+				},
+			},
+			containerName: "nonexistent",
+			wantNil:       true,
+		},
+		{
+			name:          "empty pod",
+			pod:           &corev1.Pod{},
+			containerName: "anything",
+			wantNil:       true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := getContainerStatus(tc.pod, tc.containerName)
+			if tc.wantNil {
+				assert.Nil(t, result)
+			} else {
+				require.NotNil(t, result)
+			}
+		})
+	}
 }
 
 func Test_getJobRunTimeThreshold(t *testing.T) {
