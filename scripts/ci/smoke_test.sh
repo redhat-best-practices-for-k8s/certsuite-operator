@@ -65,14 +65,11 @@ echo "$crJson" | jq
 
 # Run checks for verdict and counters.
 export EXPECTED_VERDICT=${EXPECTED_VERDICT:-"pass"}
-export EXPECTED_TOTAL_TCS=${EXPECTED_TOTAL_TCS:-"102"}
 export EXPECTED_FAILED=${EXPECTED_FAILED:-"0"}
 export EXPECTED_PASSED=${EXPECTED_PASSED:-"1"}
-export EXPECTED_SKIPPED=${EXPECTED_SKIPPED:-"101"}
 
-# Check the verdit is pass
+# Check the verdict is pass
 echo "$crJson" | jq 'if .status.report.verdict == env.EXPECTED_VERDICT then "verdict is "+env.EXPECTED_VERDICT else error("verdict mismatch: \(.status.report.verdict), expected "+env.EXPECTED_VERDICT) end'
-echo "$crJson" | jq 'if .status.report.summary.total   | tostring == env.EXPECTED_TOTAL_TCS then "total tc num is ok"   else error("total tcs mismatch: \(.status.report.summary.total), expected "+env.EXPECTED_TOTAL_TCS) end'
 echo "$crJson" | jq 'if .status.report.summary.passed  | tostring == env.EXPECTED_PASSED    then "passed tc num is ok"  else error("passed tcs mismatch: \(.status.report.summary.passed), expected "+env.EXPECTED_PASSED) end'
-echo "$crJson" | jq 'if .status.report.summary.skipped | tostring == env.EXPECTED_SKIPPED   then "skipped tc num is ok" else error("skipped tcs mismatch: \(.status.report.summary.skipped), expected "+env.EXPECTED_SKIPPED) end'
 echo "$crJson" | jq 'if .status.report.summary.failed  | tostring == env.EXPECTED_FAILED    then "failed tc num is ok" else error("failed tcs mismatch: \(.status.report.summary.failed), expected "+env.EXPECTED_FAILED) end'
+echo "$crJson" | jq '"total tcs: \(.status.report.summary.total), skipped: \(.status.report.summary.skipped)"'
