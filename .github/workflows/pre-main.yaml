@@ -50,7 +50,7 @@ jobs:
         run: checkmake --config=.checkmake Makefile
 
       - name: Hadolint
-        uses: hadolint/hadolint-action@v3.4.0
+        uses: hadolint/hadolint-action@v3.5.0
         with:
           dockerfile: Dockerfile
           recursive: true
@@ -102,7 +102,7 @@ jobs:
           df -h
 
       - name: Setup the k8s cluster
-        uses: palmsoftware/quick-k8s@v1.0.2
+        uses: palmsoftware/quick-k8s@v1.0.3
         with:
           disableDefaultCni: true
           numControlPlaneNodes: 1
